@@ -5,6 +5,100 @@
  */
 
 /**
+ * Implements hook_entity_info().
+ */
+function appointments_slot_entity_info() {
+  $entities = array();
+
+  $entities['appointments_slot'] = array(
+    'label' => t('Appointments Slot'),
+    'access callback' => 'appointments_slot_access',
+    'uri callback' => 'appointments_slot_uri',
+    'controller class' => 'AppointmentsSlotController',
+    'views controller class' => 'EntityDefaultViewsController',
+    'base table' => 'appointments_slot',
+    'entity keys' => array(
+      'id' => 'slot_id',
+      'label' => 'slot_id',
+      'bundle' => 'type',
+    ),
+    'bundle keys' => array(
+      'bundle' => 'type',
+    ),
+    'bundles' => array(),
+    'static cache' => TRUE,
+    'fieldable' => FALSE,
+    'module' => 'appointments_slot',
+    'view callback' => 'entity_metadata_view_single',
+    'metatags' => FALSE,
+    'redirect' => FALSE,
+  );
+
+  foreach (appointments_slot_type_options() as $name => $label) {
+    $entities['appointments_slot']['bundles'][$name] = array(
+      'label' => $label,
+      'admin' => array(
+        'path' => 'admin/appointments/types/%',
+        'real path' => 'admin/appointments/types/' . $name,
+        'bundle argument' => 3,
+        'access arguments' => array('appointments slot: administer types'),
+      ),
+    );
+  }
+
+  return $entities;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function appointments_slot_menu() {
+  $items = array();
+  $items['admin/appointments/slots/add/%appointments_slot_type'] = array(
+    'title' => 'Add new slot',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('appointments_slot_add_form', 5),
+    'access arguments' => array('appointments slot: add new'),
+    'file' => 'includes/appointments_slot.forms.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function appointments_slot_permission() {
+  return array(
+    'appointments slot: administer types' => array(
+      'title' => t('Administer appointments slot types'),
+    ),
+    'appointments slot: add new' => array(
+      'title' => t('Create appointments slots'),
+    ),
+  );
+}
+
+/**
+ * Load an appointments slot type by its machine name.
+ *
+ * @param string $name
+ *   The machine name of the slot type.
+ *
+ * @return object
+ *   An appointments slot type object, or FALSE if the type cannot be found.
+ */
+function appointments_slot_type_load($name = 'default') {
+  $options = appointments_slot_type_options();
+  if (isset($options[$name])) {
+    return (object) array(
+      'name' => $name,
+      'label' => $options[$name],
+    );
+  }
+  return FALSE;
+}
+
+/**
  * Get a list of slot types.
  *
  * @return array
@@ -13,4 +107,14 @@
  */
 function appointments_slot_type_options() {
   return array('default' => t('Default'));
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function appointments_slot_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'appointments_slot') . '/includes',
+  );
 }

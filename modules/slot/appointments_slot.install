@@ -24,6 +24,7 @@ function appointments_slot_schema() {
         'type' => 'varchar',
         'length' => 100,
         'not null' => TRUE,
+        'default' => 'default',
       ),
       'uid' => array(
         'description' => 'The {users}.uid of the slot\'s owner/creator.',

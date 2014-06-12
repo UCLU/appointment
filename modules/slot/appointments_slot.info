@@ -4,3 +4,5 @@ core = 7.x
 dependencies[] = appointments
 dependencies[] = entity
 dependencies[] = webform
+
+files[] = includes/appointments_slot.controller.inc
