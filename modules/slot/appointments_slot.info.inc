@@ -84,10 +84,3 @@ function appointments_slot_entity_property_info() {
   );
   return $info;
 }
-
-/**
- * Get a list of options for the 'published' database column.
- */
-function appointments_slot_published_options() {
-  return array(0 => t('Unpublished'), 1 => t('Published'));
-}

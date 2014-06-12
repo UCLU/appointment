@@ -19,8 +19,8 @@ class AppointmentsSlotController extends EntityApiController {
       'end_time' => NULL,
       'webform_nid' => NULL,
       'capacity' => 0,
-      'created' => NULL,
-      'changed' => NULL,
+      'created' => REQUEST_TIME,
+      'changed' => REQUEST_TIME,
     );
     // Overwrite default values with supplied values.
     $values = array_merge($default_values, $values);
