@@ -29,7 +29,7 @@ function appointments_slot_form($form, &$form_state, $data) {
     '#required' => TRUE,
   );
 
-  $duration = isset($slot->end_time) && isset($slot->start_time) ? ($slot->end_time - $slot->start_time / 60) : 60;
+  $duration = $slot->is_new ? 60 : ($slot->end_time - $slot->start_time) / 60;
 
   $form['duration'] = array(
     '#title' => t('Duration'),
@@ -99,6 +99,6 @@ function appointments_slot_form_submit($form, &$form_state) {
     drupal_set_message(t('The slot %label has been updated', $params));
   }
   if (empty($_GET['destination'])) {
-    $form_state['redirect'] = 'admin/appointments/slots';
+    $form_state['redirect'] = 'admin/appointments/slots' . ($slot->slot_id ? '/' . $slot->slot_id : '');
   }
 }

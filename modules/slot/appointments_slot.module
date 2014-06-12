@@ -203,7 +203,27 @@ function appointments_slot_type_load($name = 'default') {
 function appointments_slot_view($slot, $view_mode = 'default') {
   $build = array();
   $build['id'] = array(
+    '#type' => 'item',
     '#markup' => t('ID: @id', array('@id' => $slot->slot_id)),
+  );
+  $build['start_time'] = array(
+    '#type' => 'item',
+    '#markup' => t('Start time: @time', array('@time' => format_date($slot->start_time))),
+  );
+  $build['end_time'] = array(
+    '#type' => 'item',
+    '#markup' => t('End time: @time', array('@time' => format_date($slot->end_time))),
+  );
+  $build['capacity'] = array(
+    '#type' => 'item',
+    '#markup' => t('Capacity: @capacity', array('@capacity' => number_format($slot->capacity))),
+  );
+  $owner = $slot->uid ? user_load($slot->uid) : drupal_anonymous_user();
+  $build['owner'] = array(
+    '#type' => 'item',
+    '#markup' => t('Owner: !owner', array('!owner' => theme('username', array(
+      'account' => $owner,
+    )))),
   );
   return $build;
 }
