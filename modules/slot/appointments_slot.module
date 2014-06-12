@@ -1,0 +1,16 @@
+<?php
+/**
+ * @file
+ * An Appointments Slot entity type module.
+ */
+
+/**
+ * Get a list of slot types.
+ *
+ * @return array
+ *   An associative array of slot types: the keys are machine names and the
+ *   values are human-readable labels.
+ */
+function appointments_slot_type_options() {
+  return array('default' => t('Default'));
+}

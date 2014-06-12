@@ -1,0 +1,78 @@
+<?php
+/**
+ * @file
+ * Install / uninstall functions for the Appointments Booking module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function appointments_booking_schema() {
+  $schema = array();
+
+  $schema['appointments_booking'] = array(
+    'description' => 'Table storing appointments bookings.',
+    'fields' => array(
+      'booking_id' => array(
+        'description' => 'Primary key: identifier for a booking.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'slot_id' => array(
+        'description' => 'The {appointments_slot}.slot_id of the booked slot.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'booking_status' => array(
+        'description' => 'The status of the booking (e.g. draft).',
+        'type' => 'varchar',
+        'length' => 100,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => 'The {users}.uid of the appointment\'s owner/creator.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'webform_nid' => array(
+        'description' => 'The {node}.nid of the webform used for making this booking.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'webform_sid' => array(
+        'description' => 'The {webform_submissions}.sid of the webform submission.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp for when the booking was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The Unix timestamp for when the booking was most recently changed.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('booking_id'),
+    'unique keys' => array(
+      'submission' => array('webform_nid', 'webform_sid'),
+    ),
+    'indexes' => array(
+      'slot_id' => array('slot_id'),
+      'uid' => array('uid'),
+      'booking_status' => array('booking_status'),
+      'created' => array('created'),
+      'changed' => array('changed'),
+    ),
+  );
+
+  return $schema;
+}
