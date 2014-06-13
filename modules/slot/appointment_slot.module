@@ -38,6 +38,10 @@ function appointment_slot_entity_info() {
         'label' => t('Teaser'),
         'custom settings' => TRUE,
       ),
+      'administrator' => array(
+        'label' => t('Administrator'),
+        'custom settings' => TRUE,
+      ),
     ),
     'module' => 'appointment_slot',
     'view callback' => 'entity_metadata_view_single',
@@ -118,11 +122,19 @@ function appointment_slot_menu() {
       'file' => 'includes/appointment_slot.forms.inc',
     );
   }
+  $items['appointments/slots/%appointment_slot'] = array(
+    'title callback' => 'entity_label',
+    'title arguments' => array('appointment_slot', 2),
+    'page callback' => 'appointment_slot_view',
+    'page arguments' => array(2, 'full'),
+    'access callback' => 'appointment_slot_access',
+    'access arguments' => array('view', 2),
+  );
   $items['admin/appointments/slots/%appointment_slot'] = array(
     'title callback' => 'entity_label',
     'title arguments' => array('appointment_slot', 3),
     'page callback' => 'appointment_slot_view',
-    'page arguments' => array(3),
+    'page arguments' => array(3, 'administrator'),
     'access callback' => 'appointment_slot_access',
     'access arguments' => array('update', 3),
     'type' => MENU_CALLBACK,

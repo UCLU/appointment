@@ -5,26 +5,24 @@
  */
 
 /**
- * Form for adding or editing an appointment booking.
+ * Form for making an appointment booking.
  *
  * @param array $form
  *   The Drupal form render array.
  * @param array &$form_state
  *   The Drupal form state array.
+ * @param object $slot
+ *   The appointment slot entity object.
  * @param mixed $data
  *   A string (the booking type) or an object (the booking).
  */
-function appointment_booking_form($form, &$form_state, $data) {
+function appointment_booking_form($form, &$form_state, $slot) {
 
-  $booking = is_object($data) ? $data : entity_create('appointment_booking', array('type' => $data));
+  $booking = entity_create('appointment_booking', array(
+    'slot_id' => $slot->slot_id,
+  ));
 
-  $booking->is_new = empty($booking->booking_id);
-
-  $booking_path = FALSE;
-  if ($booking->booking_id) {
-    $uri = entity_uri('appointment_booking', $booking);
-    $booking_path = $uri['path'];
-  }
+  $booking->is_new = TRUE;
 
   $form_state['booking'] = $booking;
 
@@ -38,19 +36,18 @@ function appointment_booking_form($form, &$form_state, $data) {
   );
   $form['buttons']['submit'] = array(
     '#type' => 'submit',
-    '#value' => $booking->is_new ? t('Save new booking') : t('Save booking'),
+    '#value' => t('Submit booking'),
   );
 
-  $cancel_path = $booking_path ? $booking_path : 'admin/appointments/bookings';
   if (!empty($_GET['destination'])) {
     $options = drupal_parse_url($_GET['destination']);
     $cancel_path = $options['path'];
+    $form['buttons']['cancel'] = array(
+      '#type' => 'link',
+      '#title' => t('Cancel'),
+      '#href' => $cancel_path,
+    );
   }
-  $form['buttons']['cancel'] = array(
-    '#type' => 'link',
-    '#title' => t('Cancel'),
-    '#href' => $cancel_path,
-  );
 
   return $form;
 }
@@ -64,17 +61,12 @@ function appointment_booking_form_validate(&$form, &$form_state) {
 }
 
 /**
- * Submit callback for adding or editing an appointment booking.
+ * Submit callback for adding an appointment booking.
  */
 function appointment_booking_form_submit($form, &$form_state) {
   $booking = $form_state['booking'];
-  $is_new = empty($booking->booking_id);
 
-  $booking->published = $form_state['values']['published'];
-
-  if ($is_new || !isset($booking->uid)) {
-    $booking->uid = $GLOBALS['user']->uid;
-  }
+  $booking->uid = $GLOBALS['user']->uid;
 
   field_attach_submit('appointment_booking', $booking, $form, $form_state);
 
@@ -84,20 +76,71 @@ function appointment_booking_form_submit($form, &$form_state) {
   $params = array(
     '%label' => entity_label('appointment_booking', $booking),
   );
-  if ($is_new) {
-    drupal_set_message(t('Created new booking: %label', $params));
+  drupal_set_message(t('Created new booking: %label', $params));
+}
+
+/**
+ * Form for editing an appointment booking.
+ *
+ * @param array $form
+ *   The Drupal form render array.
+ * @param array &$form_state
+ *   The Drupal form state array.
+ * @param object $booking
+ *   The appointment booking entity object.
+ */
+function appointment_booking_edit_form($form, &$form_state, $booking) {
+
+  $form_state['booking'] = $booking;
+
+  form_load_include($form_state, 'inc', 'appointment_booking', 'includes/appointment_booking.forms');
+
+  $form['booking_status'] = array(
+    '#title' => t('Booking status'),
+    '#type' => 'select',
+    '#options' => appointment_booking_status_options(),
+    '#default_value' => $booking->booking_status,
+  );
+
+  field_attach_form('appointment_booking', $booking, $form, $form_state);
+
+  $form['buttons'] = array(
+    '#type' => 'actions',
+    '#weight' => 100,
+  );
+  $form['buttons']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit booking'),
+  );
+
+  if (!empty($_GET['destination'])) {
+    $options = drupal_parse_url($_GET['destination']);
+    $cancel_path = $options['path'];
+    $form['buttons']['cancel'] = array(
+      '#type' => 'link',
+      '#title' => t('Cancel'),
+      '#href' => $cancel_path,
+    );
   }
-  else {
-    drupal_set_message(t('Updated booking: %label', $params));
-  }
-  if (empty($_GET['destination'])) {
-    $path = 'admin/appointments/bookings';
-    if ($booking->booking_id) {
-      $uri = entity_uri('appointment_booking', $booking);
-      $path = $uri['path'];
-    }
-    $form_state['redirect'] = $path;
-  }
+
+  return $form;
+}
+
+/**
+ * Submit callback for editing an appointment booking.
+ */
+function appointment_booking_edit_form_submit($form, &$form_state) {
+  $booking = $form_state['booking'];
+
+  field_attach_submit('appointment_booking', $booking, $form, $form_state);
+
+  // Save the booking.
+  entity_get_controller('appointment_booking')->save($booking);
+
+  $params = array(
+    '%label' => entity_label('appointment_booking', $booking),
+  );
+  drupal_set_message(t('Updated booking: %label', $params));
 }
 
 /**
