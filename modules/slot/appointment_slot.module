@@ -17,6 +17,7 @@ function appointment_slot_entity_info() {
     'controller class' => 'AppointmentSlotController',
     'views controller class' => 'EntityDefaultViewsController',
     'base table' => 'appointment_slot',
+    'label callback' => 'appointment_slot_label',
     'entity keys' => array(
       'id' => 'slot_id',
       'label' => 'slot_id',
@@ -27,7 +28,17 @@ function appointment_slot_entity_info() {
     ),
     'bundles' => array(),
     'static cache' => TRUE,
-    'fieldable' => FALSE,
+    'fieldable' => TRUE,
+    'view modes' => array(
+      'full' => array(
+        'label' => t('Full content'),
+        'custom settings' => FALSE,
+      ),
+      'teaser' => array(
+        'label' => t('Teaser'),
+        'custom settings' => TRUE,
+      ),
+    ),
     'module' => 'appointment_slot',
     'view callback' => 'entity_metadata_view_single',
     'metatags' => FALSE,
@@ -38,7 +49,7 @@ function appointment_slot_entity_info() {
     $entities['appointment_slot']['bundles'][$name] = array(
       'label' => $label,
       'admin' => array(
-        'path' => 'admin/appointments/types/%',
+        'path' => 'admin/appointments/types/' . $name,
         'real path' => 'admin/appointments/types/' . $name,
         'bundle argument' => 3,
         'access arguments' => array('appointment slot: administer types'),
@@ -50,6 +61,34 @@ function appointment_slot_entity_info() {
 }
 
 /**
+ * Implements hook_field_extra_fields().
+ */
+function appointment_slot_field_extra_fields() {
+  $extra = array();
+  foreach (appointment_slot_types() as $bundle => $type) {
+    $extra['appointment_slot'][$bundle]['display'] = array(
+      'start_time' => array(
+        'label' => t('Start time'),
+        'weight' => 0,
+      ),
+      'end_time' => array(
+        'label' => t('End time'),
+        'weight' => 1,
+      ),
+      'capacity' => array(
+        'label' => t('Capacity'),
+        'weight' => 2,
+      ),
+      'owner' => array(
+        'label' => t('Owner'),
+        'weight' => 3,
+      ),
+    );
+  }
+  return $extra;
+}
+
+/**
  * Implements hook_menu().
  */
 function appointment_slot_menu() {
@@ -58,6 +97,13 @@ function appointment_slot_menu() {
     'title' => 'Add new slot',
     'page callback' => 'system_admin_menu_block_page',
     'access arguments' => array('appointment slot: add new'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+  $items['admin/appointments/types'] = array(
+    'title' => 'Appointment slot types',
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('appointment slot: administer types'),
     'file' => 'system.admin.inc',
     'file path' => drupal_get_path('module', 'system'),
   );
@@ -167,6 +213,18 @@ function appointment_slot_add_title($type) {
 }
 
 /**
+ * Label callback for an appointment slot.
+ *
+ * @return string
+ */
+function appointment_slot_label($slot) {
+  return t('Appointment slot: @time', array(
+    '@time' => format_date($slot->start_time, 'short'),
+    '@id' => $slot->slot_id,
+  ));
+}
+
+/**
  * Get a list of options for the 'published' database column.
  *
  * @return array
@@ -220,10 +278,6 @@ function appointment_slot_type_load($name = 'default') {
  */
 function appointment_slot_view($slot, $view_mode = 'default') {
   $build = array();
-  $build['id'] = array(
-    '#type' => 'item',
-    '#markup' => t('ID: @id', array('@id' => $slot->slot_id)),
-  );
   $build['start_time'] = array(
     '#type' => 'item',
     '#markup' => t('Start time: @time', array('@time' => format_date($slot->start_time))),

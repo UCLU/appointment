@@ -27,7 +27,6 @@ class AppointmentSlotController extends EntityApiController {
     return parent::create($values);
   }
 
-
   /**
    * Overrides EntityAPIController::save().
    */
