@@ -132,6 +132,10 @@ function appointment_booking_edit_form($form, &$form_state, $booking) {
 function appointment_booking_edit_form_submit($form, &$form_state) {
   $booking = $form_state['booking'];
 
+  if (isset($form_state['values']['booking_status'])) {
+    $booking->booking_status = $form_state['values']['booking_status'];
+  }
+
   field_attach_submit('appointment_booking', $booking, $form, $form_state);
 
   // Save the booking.
