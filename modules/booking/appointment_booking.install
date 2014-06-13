@@ -1,17 +1,17 @@
 <?php
 /**
  * @file
- * Install / uninstall functions for the Appointments Booking module.
+ * Install / uninstall functions for the Appointment Booking module.
  */
 
 /**
  * Implements hook_schema().
  */
-function appointments_booking_schema() {
+function appointment_booking_schema() {
   $schema = array();
 
-  $schema['appointments_booking'] = array(
-    'description' => 'Table storing appointments bookings.',
+  $schema['appointment_booking'] = array(
+    'description' => 'Table storing appointment bookings.',
     'fields' => array(
       'booking_id' => array(
         'description' => 'Primary key: identifier for a booking.',
@@ -20,7 +20,7 @@ function appointments_booking_schema() {
         'not null' => TRUE,
       ),
       'slot_id' => array(
-        'description' => 'The {appointments_slot}.slot_id of the booked slot.',
+        'description' => 'The {appointment_slot}.slot_id of the booked slot.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,

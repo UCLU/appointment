@@ -1,10 +1,10 @@
 <?php
 /**
  * @file
- * Entity controller for the 'appointments_slot' entity.
+ * Entity controller for the 'appointment_slot' entity.
  */
 
-class AppointmentsSlotController extends EntityApiController {
+class AppointmentSlotController extends EntityApiController {
 
   /**
    * Overrides EntityAPIController::create(), allowing defaults to be defined.

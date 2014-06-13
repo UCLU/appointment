@@ -1,0 +1,36 @@
+<?php
+/**
+ * @file
+ * Appointment Booking module.
+ */
+
+/**
+ * Create a booking.
+ *
+ * @return array
+ */
+function appointment_booking_create($slot, $account, $status = 'draft') {
+  $booking = array(
+    'slot_id' => $slot->slot_id,
+    'booking_status' => $status,
+    'uid' => $account->uid,
+  );
+  drupal_write_record('appointment_booking', $booking);
+  return $booking;
+}
+
+/**
+ * Get a list of booking statuses.
+ *
+ * @return array
+ *   An array of booking statuses: the keys are machine names and the values are
+ *   human-readable labels.
+ */
+function appointment_booking_status_options() {
+  return array(
+    'draft' => t('Draft'),
+    'pending' => t('Pending'),
+    'booked' => t('Booked'),
+    'canceled' => t('Canceled'),
+  );
+}

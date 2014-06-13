@@ -1,22 +1,22 @@
 <?php
 /**
  * @file
- * An Appointments Slot entity type module.
+ * An Appointment Slot entity type module.
  */
 
 /**
  * Implements hook_entity_info().
  */
-function appointments_slot_entity_info() {
+function appointment_slot_entity_info() {
   $entities = array();
 
-  $entities['appointments_slot'] = array(
-    'label' => t('Appointments Slot'),
-    'access callback' => 'appointments_slot_access',
-    'uri callback' => 'appointments_slot_uri',
-    'controller class' => 'AppointmentsSlotController',
+  $entities['appointment_slot'] = array(
+    'label' => t('Appointment Slot'),
+    'access callback' => 'appointment_slot_access',
+    'uri callback' => 'appointment_slot_uri',
+    'controller class' => 'AppointmentSlotController',
     'views controller class' => 'EntityDefaultViewsController',
-    'base table' => 'appointments_slot',
+    'base table' => 'appointment_slot',
     'entity keys' => array(
       'id' => 'slot_id',
       'label' => 'slot_id',
@@ -28,20 +28,20 @@ function appointments_slot_entity_info() {
     'bundles' => array(),
     'static cache' => TRUE,
     'fieldable' => FALSE,
-    'module' => 'appointments_slot',
+    'module' => 'appointment_slot',
     'view callback' => 'entity_metadata_view_single',
     'metatags' => FALSE,
     'redirect' => FALSE,
   );
 
-  foreach (appointments_slot_type_options() as $name => $label) {
-    $entities['appointments_slot']['bundles'][$name] = array(
+  foreach (appointment_slot_type_options() as $name => $label) {
+    $entities['appointment_slot']['bundles'][$name] = array(
       'label' => $label,
       'admin' => array(
         'path' => 'admin/appointments/types/%',
         'real path' => 'admin/appointments/types/' . $name,
         'bundle argument' => 3,
-        'access arguments' => array('appointments slot: administer types'),
+        'access arguments' => array('appointment slot: administer types'),
       ),
     );
   }
@@ -52,47 +52,47 @@ function appointments_slot_entity_info() {
 /**
  * Implements hook_menu().
  */
-function appointments_slot_menu() {
+function appointment_slot_menu() {
   $items = array();
   $items['admin/appointments/slots/add'] = array(
     'title' => 'Add new slot',
     'page callback' => 'system_admin_menu_block_page',
-    'access arguments' => array('appointments slot: add new'),
+    'access arguments' => array('appointment slot: add new'),
     'file' => 'system.admin.inc',
     'file path' => drupal_get_path('module', 'system'),
   );
-  foreach (appointments_slot_types() as $name => $type) {
+  foreach (appointment_slot_types() as $name => $type) {
     $items['admin/appointments/slots/add/' . $name] = array(
-      'title callback' => 'appointments_slot_add_title',
+      'title callback' => 'appointment_slot_add_title',
       'title arguments' => array($type),
       'description' => $type->description ? $type->description : '',
       'page callback' => 'drupal_get_form',
-      'page arguments' => array('appointments_slot_add_form', $name),
-      'access arguments' => array('appointments slot: add new'),
-      'file' => 'includes/appointments_slot.forms.inc',
+      'page arguments' => array('appointment_slot_add_form', $name),
+      'access arguments' => array('appointment slot: add new'),
+      'file' => 'includes/appointment_slot.forms.inc',
     );
   }
-  $items['admin/appointments/slots/%appointments_slot'] = array(
+  $items['admin/appointments/slots/%appointment_slot'] = array(
     'title callback' => 'entity_label',
-    'title arguments' => array('appointments_slot', 3),
-    'page callback' => 'appointments_slot_view',
+    'title arguments' => array('appointment_slot', 3),
+    'page callback' => 'appointment_slot_view',
     'page arguments' => array(3),
-    'access callback' => 'appointments_slot_access',
+    'access callback' => 'appointment_slot_access',
     'access arguments' => array('update', 3),
     'type' => MENU_CALLBACK,
   );
-  $items['admin/appointments/slots/%appointments_slot/view'] = array(
+  $items['admin/appointments/slots/%appointment_slot/view'] = array(
     'title' => 'View',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => 0,
   );
-  $items['admin/appointments/slots/%appointments_slot/edit'] = array(
+  $items['admin/appointments/slots/%appointment_slot/edit'] = array(
     'title' => 'Edit',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('appointments_slot_form', 3),
-    'access callback' => 'appointments_slot_access',
+    'page arguments' => array('appointment_slot_form', 3),
+    'access callback' => 'appointment_slot_access',
     'access arguments' => array('update', 3),
-    'file' => 'includes/appointments_slot.forms.inc',
+    'file' => 'includes/appointment_slot.forms.inc',
     'type' => MENU_LOCAL_TASK,
     'weight' => 1,
   );
@@ -100,7 +100,7 @@ function appointments_slot_menu() {
 }
 
 /**
- * Access callback for appointments slots.
+ * Access callback for appointment slots.
  *
  * @param string $op
  * @param object $slot
@@ -108,7 +108,7 @@ function appointments_slot_menu() {
  *
  * @return bool
  */
-function appointments_slot_access($op, $slot, $account = NULL) {
+function appointment_slot_access($op, $slot, $account = NULL) {
   $account = $account ? $account : $GLOBALS['user'];
   $own = $account->uid && $slot->uid == $account->uid;
   switch ($op) {
@@ -116,19 +116,19 @@ function appointments_slot_access($op, $slot, $account = NULL) {
       if ($own) {
         return TRUE;
       }
-      elseif (user_access('appointments slot: update any', $account)) {
+      elseif (user_access('appointment slot: update any', $account)) {
         return TRUE;
       }
-      elseif ($slot->published && user_access('appointments slot: view published', $account)) {
+      elseif ($slot->published && user_access('appointment slot: view published', $account)) {
         return TRUE;
       }
       return FALSE;
 
     case 'update':
-      if ($own && user_access('appointments slot: update own', $account)) {
+      if ($own && user_access('appointment slot: update own', $account)) {
         return TRUE;
       }
-      elseif (user_access('appointments slot: update any', $account)) {
+      elseif (user_access('appointment slot: update any', $account)) {
         return TRUE;
       }
       return FALSE;
@@ -144,7 +144,7 @@ function appointments_slot_access($op, $slot, $account = NULL) {
  *
  * @return string
  */
-function appointments_slot_add_title($type) {
+function appointment_slot_add_title($type) {
   return t('Add new slot (@type)', array('@type' => $type->label));
 }
 
@@ -153,44 +153,44 @@ function appointments_slot_add_title($type) {
  *
  * @return array
  */
-function appointments_slot_published_options() {
+function appointment_slot_published_options() {
   return array(0 => t('Unpublished'), 1 => t('Published'));
 }
 
 /**
  * Implements hook_permission().
  */
-function appointments_slot_permission() {
+function appointment_slot_permission() {
   return array(
-    'appointments slot: administer types' => array(
-      'title' => t('Administer appointments slot types'),
+    'appointment slot: administer types' => array(
+      'title' => t('Administer appointment slot types'),
     ),
-    'appointments slot: add new' => array(
-      'title' => t('Create appointments slots'),
+    'appointment slot: add new' => array(
+      'title' => t('Create appointment slots'),
     ),
-    'appointments slot: update any' => array(
-      'title' => t('Update any appointments slots'),
+    'appointment slot: update any' => array(
+      'title' => t('Update any appointment slots'),
     ),
-    'appointments slot: update own' => array(
-      'title' => t('Update own appointments slots'),
+    'appointment slot: update own' => array(
+      'title' => t('Update own appointment slots'),
     ),
-    'appointments slot: add new' => array(
-      'title' => t('View published appointments slots'),
+    'appointment slot: add new' => array(
+      'title' => t('View published appointment slots'),
     ),
   );
 }
 
 /**
- * Load an appointments slot type by its machine name.
+ * Load an appointment slot type by its machine name.
  *
  * @param string $name
  *   The machine name of the slot type.
  *
  * @return object
- *   An appointments slot type object, or FALSE if the type cannot be found.
+ *   An appointment slot type object, or FALSE if the type cannot be found.
  */
-function appointments_slot_type_load($name = 'default') {
-  $types = appointments_slot_types();
+function appointment_slot_type_load($name = 'default') {
+  $types = appointment_slot_types();
   if (isset($types[$name])) {
     return $types[$name];
   }
@@ -198,9 +198,9 @@ function appointments_slot_type_load($name = 'default') {
 }
 
 /**
- * View an appointments slot.
+ * View an appointment slot.
  */
-function appointments_slot_view($slot, $view_mode = 'default') {
+function appointment_slot_view($slot, $view_mode = 'default') {
   $build = array();
   $build['id'] = array(
     '#type' => 'item',
@@ -229,30 +229,30 @@ function appointments_slot_view($slot, $view_mode = 'default') {
 }
 
 /**
- * Load an appointments slot.
+ * Load an appointment slot.
  *
  * @param int $slot_id
  *
  * @return object|FALSE
  *   The slot entity, or FALSE if it cannot be found.
  */
-function appointments_slot_load($slot_id) {
-  $slots = appointments_slot_load_multiple(array($slot_id));
+function appointment_slot_load($slot_id) {
+  $slots = appointment_slot_load_multiple(array($slot_id));
   return $slots ? reset($slots) : FALSE;
 }
 
 /**
- * Load multiple appointments slots.
+ * Load multiple appointment slots.
  *
  * @param array $slot_ids
  * @param array $conditions
  * @param bool $reset
  *
  * @return array
- *   An array of appointments slot entities, keyed by the entity ID.
+ *   An array of appointment slot entities, keyed by the entity ID.
  */
-function appointments_slot_load_multiple(array $slot_ids = array(), array $conditions = array(), $reset = FALSE) {
-  return entity_load('appointments_slot', $slot_ids, $conditions, $reset);
+function appointment_slot_load_multiple(array $slot_ids = array(), array $conditions = array(), $reset = FALSE) {
+  return entity_load('appointment_slot', $slot_ids, $conditions, $reset);
 }
 
 /**
@@ -261,7 +261,7 @@ function appointments_slot_load_multiple(array $slot_ids = array(), array $condi
  * @return array
  *   An array of type objects.
  */
-function appointments_slot_types() {
+function appointment_slot_types() {
   return array(
     'default' => (object) array(
       'label' => t('Default'),
@@ -277,9 +277,9 @@ function appointments_slot_types() {
  *   An associative array of slot types: the keys are machine names and the
  *   values are human-readable labels.
  */
-function appointments_slot_type_options() {
+function appointment_slot_type_options() {
   $options = array();
-  foreach (appointments_slot_types() as $name => $type) {
+  foreach (appointment_slot_types() as $name => $type) {
     $options[$name] = $type->label;
   }
   return $options;
@@ -288,9 +288,9 @@ function appointments_slot_type_options() {
 /**
  * Implements hook_views_api().
  */
-function appointments_slot_views_api() {
+function appointment_slot_views_api() {
   return array(
     'api' => 3,
-    'path' => drupal_get_path('module', 'appointments_slot') . '/includes',
+    'path' => drupal_get_path('module', 'appointment_slot') . '/includes',
   );
 }

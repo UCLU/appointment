@@ -1,17 +1,17 @@
 <?php
 /**
  * @file
- * Install and uninstall functions for Appointments Slot.
+ * Install and uninstall functions for Appointment Slot.
  */
 
 /**
  * Implements hook_schema().
  */
-function appointments_slot_schema() {
+function appointment_slot_schema() {
   $schema = array();
 
-  $schema['appointments_slot'] = array(
-    'description' => 'Table storing Appointments Slot entities.',
+  $schema['appointment_slot'] = array(
+    'description' => 'Table storing Appointment Slot entities.',
     'fields' => array(
       'slot_id' => array(
         'description' => 'Primary key: identifier for an appointment slot.',

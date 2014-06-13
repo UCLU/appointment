@@ -1,15 +1,15 @@
 <?php
 /**
  * @file
- * Entity information for the Appointments Slot entity type.
+ * Entity information for the Appointment Slot entity type.
  */
 
 /**
  * Implements hook_entity_property_info().
  */
-function appointments_slot_entity_property_info() {
+function appointment_slot_entity_property_info() {
   $info = array();
-  $properties = &$info['appointments_slot']['properties'];
+  $properties = &$info['appointment_slot']['properties'];
   $properties = array(
     'slot_id' => array(
       'label' => t('Slot ID'),
@@ -23,7 +23,7 @@ function appointments_slot_entity_property_info() {
       'description' => t('The slot type.'),
       'required' => TRUE,
       'schema field' => 'type',
-      'options list' => 'appointments_slot_type_options',
+      'options list' => 'appointment_slot_type_options',
       'setter callback' => 'entity_property_verbatim_set',
     ),
     'uid' => array(
@@ -36,7 +36,7 @@ function appointments_slot_entity_property_info() {
       'label' => t('Published status'),
       'description' => t('Whether or not the slot is published.'),
       'type' => 'boolean',
-      'options list' => 'appointments_slot_published_options',
+      'options list' => 'appointment_slot_published_options',
       'schema field' => 'published',
       'required' => TRUE,
     ),

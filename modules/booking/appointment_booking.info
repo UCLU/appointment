@@ -1,0 +1,6 @@
+name = Appointment Booking
+core = 7.x
+
+dependencies[] = appointment
+dependencies[] = appointment_slot
+dependencies[] = webform

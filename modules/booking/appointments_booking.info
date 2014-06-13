@@ -1,6 +1,0 @@
-name = Drupal Appointments Booking
-core = 7.x
-
-dependencies[] = appointments
-dependencies[] = appointments_slot
-dependencies[] = webform

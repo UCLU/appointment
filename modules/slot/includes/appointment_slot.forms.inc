@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Forms for the Appointments Slot module.
+ * Forms for the Appointment Slot module.
  */
 
 /**
@@ -14,9 +14,9 @@
  * @param mixed $data
  *   A string (the slot type) or an object (the slot).
  */
-function appointments_slot_form($form, &$form_state, $data) {
+function appointment_slot_form($form, &$form_state, $data) {
 
-  $slot = is_object($data) ? $data : entity_create('appointments_slot', array('type' => $data));
+  $slot = is_object($data) ? $data : entity_create('appointment_slot', array('type' => $data));
 
   $slot->is_new = empty($slot->slot_id);
 
@@ -56,7 +56,7 @@ function appointments_slot_form($form, &$form_state, $data) {
   $form['published'] = array(
     '#title' => t('Status'),
     '#type' => 'select',
-    '#options' => appointments_slot_published_options(),
+    '#options' => appointment_slot_published_options(),
     '#default_value' => $slot->published,
     '#required' => TRUE,
   );
@@ -74,7 +74,7 @@ function appointments_slot_form($form, &$form_state, $data) {
 /**
  * Submit callback for adding or editing an appointment slot.
  */
-function appointments_slot_form_submit($form, &$form_state) {
+function appointment_slot_form_submit($form, &$form_state) {
   $slot = $form_state['slot'];
   $is_new = empty($slot->slot_id);
 
@@ -83,14 +83,14 @@ function appointments_slot_form_submit($form, &$form_state) {
   $slot->end_time = date('Y-m-d H:i:s', strtotime($slot->start_time) + ($duration * 60));
   $slot->capacity = $form_state['values']['capacity'];
 
-  if ($is_new) {
+  if ($is_new || !isset($slot->uid)) {
     $slot->uid = $GLOBALS['user']->uid;
   }
 
-  $controller = entity_get_controller('appointments_slot');
+  $controller = entity_get_controller('appointment_slot');
   $controller->save($slot);
   $params = array(
-      '%label' => entity_label('appointments_slot', $slot),
+      '%label' => entity_label('appointment_slot', $slot),
   );
   if ($is_new) {
     drupal_set_message(t('The slot %label has been created', $params));

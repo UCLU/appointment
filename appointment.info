@@ -1,4 +1,4 @@
-name = Drupal Appointments
+name = Appointment
 core = 7.x
 
 dependencies[] = views
