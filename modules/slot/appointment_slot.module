@@ -67,7 +67,7 @@ function appointment_slot_menu() {
       'title arguments' => array($type),
       'description' => $type->description ? $type->description : '',
       'page callback' => 'drupal_get_form',
-      'page arguments' => array('appointment_slot_add_form', $name),
+      'page arguments' => array('appointment_slot_form', $name),
       'access arguments' => array('appointment slot: add new'),
       'file' => 'includes/appointment_slot.forms.inc',
     );
@@ -97,6 +97,24 @@ function appointment_slot_menu() {
     'weight' => 1,
   );
   return $items;
+}
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function appointment_slot_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  if ($root_path == 'admin/appointments/slots') {
+    foreach (appointment_slot_types() as $name => $types) {
+      $item = menu_get_item('admin/appointments/slots/add/' . $name);
+      if ($item['access']) {
+        $item['localized_options']['query']['destination'] ='admin/appointments/slots';
+        $data['actions']['output'][] = array(
+          '#theme' => 'menu_local_action',
+          '#link' => $item,
+        );
+      }
+    }
+  }
 }
 
 /**

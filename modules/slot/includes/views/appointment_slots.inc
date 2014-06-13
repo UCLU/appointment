@@ -19,7 +19,7 @@ $handler = $view->new_display('default', 'Master', 'default');
 $handler->display->display_options['title'] = 'Appointment Slots';
 $handler->display->display_options['use_more_always'] = FALSE;
 $handler->display->display_options['access']['type'] = 'perm';
-$handler->display->display_options['access']['perm'] = 'appointment slot: add new';
+$handler->display->display_options['access']['perm'] = 'appointment slot: update any';
 $handler->display->display_options['cache']['type'] = 'none';
 $handler->display->display_options['query']['type'] = 'views_query';
 $handler->display->display_options['exposed_form']['type'] = 'basic';
@@ -92,6 +92,8 @@ $handler->display->display_options['empty']['area']['format'] = 'plain_text';
 $handler->display->display_options['fields']['slot_id']['id'] = 'slot_id';
 $handler->display->display_options['fields']['slot_id']['table'] = 'appointment_slot';
 $handler->display->display_options['fields']['slot_id']['field'] = 'slot_id';
+$handler->display->display_options['fields']['slot_id']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['slot_id']['alter']['path'] = 'admin/appointments/slots/[slot_id]';
 /* Field: Appointment Slot: Start time */
 $handler->display->display_options['fields']['start_time']['id'] = 'start_time';
 $handler->display->display_options['fields']['start_time']['table'] = 'appointment_slot';

@@ -25,7 +25,7 @@ function appointment_slot_form($form, &$form_state, $data) {
   $form['start_time'] = array(
     '#title' => t('Start time'),
     '#type' => 'date_popup',
-    '#default_value' => date('Y-m-d H:i:s', $slot->start_time),
+    '#default_value' => $slot->is_new ? NULL : date('Y-m-d H:i:s', $slot->start_time),
     '#required' => TRUE,
   );
 
@@ -82,6 +82,7 @@ function appointment_slot_form_submit($form, &$form_state) {
   $duration = $form_state['values']['duration'];
   $slot->end_time = date('Y-m-d H:i:s', strtotime($slot->start_time) + ($duration * 60));
   $slot->capacity = $form_state['values']['capacity'];
+  $slot->published = $form_state['values']['published'];
 
   if ($is_new || !isset($slot->uid)) {
     $slot->uid = $GLOBALS['user']->uid;
