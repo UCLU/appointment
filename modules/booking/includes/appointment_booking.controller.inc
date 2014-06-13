@@ -1,21 +1,22 @@
 <?php
 /**
  * @file
- * Entity controller for the 'appointment_slot' entity.
+ * Entity controller for the 'appointment_booking' entity.
  */
 
-class AppointmentSlotController extends EntityApiController {
+class AppointmentBookingController extends EntityApiController {
 
   /**
    * Overrides EntityAPIController::create(), allowing defaults to be defined.
    */
   public function create(array $values = array()) {
     $default_values = array(
+      'booking_id' => NULL,
       'slot_id' => NULL,
-      'type' => 'default',
       'uid' => NULL,
-      'published' => 0,
-      'data' => array(),
+      'booking_status' => 'draft',
+      'webform_nid' => NULL,
+      'webform_sid' => NULL,
       'created' => NULL,
       'changed' => NULL,
     );
@@ -29,7 +30,7 @@ class AppointmentSlotController extends EntityApiController {
    */
   public function save($entity, DatabaseTransaction $transaction = NULL) {
     // Determine whether the entity is new.
-    $entity->is_new = empty($entity->slot_id);
+    $entity->is_new = empty($entity->booking_id);
 
     // Set 'created' and 'changed' fields.
     if ($entity->is_new || empty($entity->created)) {

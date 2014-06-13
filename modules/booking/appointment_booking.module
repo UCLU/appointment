@@ -57,8 +57,8 @@ function appointment_booking_menu() {
     'title' => 'Book',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('appointment_booking_form', 2),
-    'access callback' => 'appointment_slot_access',
-    'access arguments' => array('view', 2),
+    'access callback' => 'appointment_booking_access_by_slot',
+    'access arguments' => array(2),
     'file' => 'includes/appointment_booking.forms.inc',
     'type' => MENU_LOCAL_ACTION,
     'context' => MENU_CONTEXT_INLINE | MENU_CONTEXT_PAGE,
@@ -103,6 +103,27 @@ function appointment_booking_menu() {
 }
 
 /**
+ * Access callback for booking an appointment based on a particular slot.
+ *
+ * @param object $slot
+ * @param object $account
+ *
+ * @return bool
+ */
+function appointment_booking_access_by_slot($slot, $account = NULL) {
+  $account = $account ? $account : $GLOBALS['user'];
+  if (user_access('appointment booking: create', $account)) {
+    if (empty($slot->data) || empty($slot->data['booking_roles'])) {
+      return TRUE;
+    }
+    if (array_intersect(array_keys($account->roles), $slot->data['booking_roles'])) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+/**
  * Access callback for appointment bookings.
  *
  * @param string $op
@@ -130,10 +151,10 @@ function appointment_booking_access($op, $booking, $account = NULL) {
 
     case 'update':
     case 'delete':
-      if ($own && user_access('appointment slot: update own', $account)) {
+      if ($own && user_access('appointment booking: update own', $account)) {
         return TRUE;
       }
-      elseif (user_access('appointment slot: update any', $account)) {
+      elseif (user_access('appointment booking: update any', $account)) {
         return TRUE;
       }
       return FALSE;
@@ -199,6 +220,9 @@ function appointment_booking_permission() {
     'appointment booking: update own' => array(
       'title' => t('Update own appointment bookings'),
     ),
+    'appointment booking: create' => array(
+      'title' => t('Make appointment bookings'),
+    ),
   );
 }
 
@@ -221,3 +245,37 @@ function appointment_booking_view($booking, $view_mode = 'default') {
   return $build;
 }
 
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function appointment_booking_form_appointment_slot_form_alter(&$form, &$form_state) {
+  $slot = $form_state['slot'];
+  $booking_roles = $slot->data && isset($slot->data['booking_roles']) ? $slot->data['booking_roles'] : array();
+  $form['booking_roles'] = array(
+    '#title' => t('Booking access'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => empty($booking_roles),
+  );
+  $form['booking_roles']['booking_roles'] = array(
+    '#title' => t('Roles'),
+    '#type' => 'checkboxes',
+    '#options' => user_roles(),
+    '#description' => t('Select the roles allowed to book appointments for this slot.'),
+    '#default_value' => $booking_roles ? $booking_roles : user_roles(FALSE, 'appointment booking: create'),
+  );
+  if (!isset($form['#submit'])) {
+    $form['#submit'] = array();
+  }
+  array_unshift($form['#submit'], 'appointment_booking_slot_form_submit');
+}
+
+/**
+ * Submit callback for the slot form.
+ */
+function appointment_booking_slot_form_submit($form, &$form_state) {
+  $slot = $form_state['slot'];
+  if (isset($form_state['values']['booking_roles'])) {
+    $slot->data['booking_roles'] = array_filter($form_state['values']['booking_roles']);
+  }
+}

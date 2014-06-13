@@ -39,6 +39,13 @@ function appointment_slot_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'data' => array(
+        'description' => 'A serialized array of any further data for this slot.',
+        'type' => 'blob',
+        'size' => 'normal',
+        'serialize' => TRUE,
+        'not null' => FALSE,
+      ),
       'created' => array(
         'description' => 'The Unix timestamp for when the election was created.',
         'type' => 'int',
