@@ -2,9 +2,10 @@ name = Drupal Appointment Slot
 core = 7.x
 
 dependencies[] = appointment
-dependencies[] = entity
-dependencies[] = webform
+dependencies[] = appointment_slot_fields
 dependencies[] = date
 dependencies[] = date_popup
+dependencies[] = entity
+dependencies[] = entityreference
 
 files[] = includes/appointment_slot.controller.inc

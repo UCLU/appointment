@@ -15,12 +15,8 @@ class AppointmentSlotController extends EntityApiController {
       'type' => 'default',
       'uid' => NULL,
       'published' => 0,
-      'start_time' => NULL,
-      'end_time' => NULL,
-      'webform_nid' => NULL,
-      'capacity' => 0,
-      'created' => REQUEST_TIME,
-      'changed' => REQUEST_TIME,
+      'created' => NULL,
+      'changed' => NULL,
     );
     // Overwrite default values with supplied values.
     $values = array_merge($default_values, $values);
@@ -34,15 +30,8 @@ class AppointmentSlotController extends EntityApiController {
     // Determine whether the entity is new.
     $entity->is_new = empty($entity->slot_id);
 
-    // Convert timestamp fields.
-    foreach ($entity as $property => $value) {
-      if (substr($property, -5) == '_time' && !empty($value) && !is_numeric($value)) {
-        $entity->$property = strtotime($value);
-      }
-    }
-
     // Set 'created' and 'changed' fields.
-    if (empty($entity->created)) {
+    if ($entity->is_new || empty($entity->created)) {
       $entity->created = REQUEST_TIME;
     }
     $entity->changed = REQUEST_TIME;

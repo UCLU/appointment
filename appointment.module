@@ -4,3 +4,37 @@
  * Appointment module for Drupal.
  */
 
+/**
+ * Implements hook_menu().
+ */
+function appointment_menu() {
+  $items = array();
+  $items['admin/appointments'] = array(
+    'title' => 'Appointments',
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('appointment: administer'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_admin_paths().
+ */
+function appointment_admin_paths() {
+  return array(
+    'admin/appointments' => TRUE,
+  );
+}
+
+/**
+ * Implements hook_permission().
+ */
+function appointment_permission() {
+  return array(
+    'appointment: administer' => array(
+      'title' => t('Administer appointments'),
+    ),
+  );
+}

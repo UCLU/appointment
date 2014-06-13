@@ -40,33 +40,6 @@ function appointment_slot_entity_property_info() {
       'schema field' => 'published',
       'required' => TRUE,
     ),
-    'start_time' => array(
-      'label' => t('Start time'),
-      'description' => t('The date and time when the slot starts.'),
-      'type' => 'date',
-      'schema field' => 'start_time',
-      'setter callback' => 'entity_property_verbatim_set',
-    ),
-    'end_time' => array(
-      'label' => t('End time'),
-      'description' => t('The date and time when the slot ends.'),
-      'type' => 'date',
-      'schema field' => 'end_time',
-      'setter callback' => 'entity_property_verbatim_set',
-    ),
-    'webform_nid' => array(
-      'label' => t('Webform'),
-      'description' => t('The ID of the webform to be used for booking this slot.'),
-      'type' => 'node',
-      'schema field' => 'webform_nid',
-    ),
-    'capacity' => array(
-      'label' => t('Remaining capacity'),
-      'description' => t('The remaining capacity for this slot.'),
-      'type' => 'integer',
-      'schema field' => 'capacity',
-      'setter callback' => 'entity_property_verbatim_set',
-    ),
     'created' => array(
       'label' => t('Created date'),
       'description' => t('The date when the slot was created.'),

@@ -66,26 +66,26 @@ function appointment_slot_entity_info() {
 function appointment_slot_field_extra_fields() {
   $extra = array();
   foreach (appointment_slot_types() as $bundle => $type) {
-    $extra['appointment_slot'][$bundle]['display'] = array(
-      'start_time' => array(
-        'label' => t('Start time'),
-        'weight' => 0,
-      ),
-      'end_time' => array(
-        'label' => t('End time'),
-        'weight' => 1,
-      ),
-      'capacity' => array(
-        'label' => t('Capacity'),
-        'weight' => 2,
-      ),
-      'owner' => array(
-        'label' => t('Owner'),
-        'weight' => 3,
+    $extra['appointment_slot'][$bundle]['form'] = array(
+      'published' => array(
+        'label' => t('Published status'),
+        'weight' => 90,
       ),
     );
   }
   return $extra;
+}
+
+/**
+ * URI callback for an appointment slot.
+ *
+ * @return array
+ *   An array containing a URI 'path'.
+ */
+function appointment_slot_uri($slot) {
+  return array(
+    'path' => 'admin/appointments/slots/' . $slot->slot_id,
+  );
 }
 
 /**
@@ -140,7 +140,19 @@ function appointment_slot_menu() {
     'access arguments' => array('update', 3),
     'file' => 'includes/appointment_slot.forms.inc',
     'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
     'weight' => 1,
+  );
+  $items['admin/appointments/slots/%appointment_slot/delete'] = array(
+    'title' => 'Delete',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('appointment_slot_delete_confirm', 3),
+    'access callback' => 'appointment_slot_access',
+    'access arguments' => array('delete', 3),
+    'file' => 'includes/appointment_slot.forms.inc',
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_INLINE,
+    'weight' => 2,
   );
   return $items;
 }
@@ -167,16 +179,20 @@ function appointment_slot_menu_local_tasks_alter(&$data, $router_item, $root_pat
  * Access callback for appointment slots.
  *
  * @param string $op
+ *   The operation to check access for ('view', 'delete', or 'update').
  * @param object $slot
+ *   The slot entity.
  * @param object $account
+ *   The Drupal user account (defaults to the current user).
  *
  * @return bool
+ *   TRUE or FALSE for whether access is granted.
  */
 function appointment_slot_access($op, $slot, $account = NULL) {
   $account = $account ? $account : $GLOBALS['user'];
   $own = $account->uid && $slot->uid == $account->uid;
   switch ($op) {
-    case 'update':
+    case 'view':
       if ($own) {
         return TRUE;
       }
@@ -189,6 +205,7 @@ function appointment_slot_access($op, $slot, $account = NULL) {
       return FALSE;
 
     case 'update':
+    case 'delete':
       if ($own && user_access('appointment slot: update own', $account)) {
         return TRUE;
       }
@@ -218,10 +235,7 @@ function appointment_slot_add_title($type) {
  * @return string
  */
 function appointment_slot_label($slot) {
-  return t('Appointment slot: @time', array(
-    '@time' => format_date($slot->start_time, 'short'),
-    '@id' => $slot->slot_id,
-  ));
+  return t('Slot #@id', array('@id' => $slot->slot_id));
 }
 
 /**
@@ -276,28 +290,46 @@ function appointment_slot_type_load($name = 'default') {
 /**
  * View an appointment slot.
  */
-function appointment_slot_view($slot, $view_mode = 'default') {
+function appointment_slot_view($slot, $view_mode = 'full') {
   $build = array();
-  $build['start_time'] = array(
-    '#type' => 'item',
-    '#markup' => t('Start time: @time', array('@time' => format_date($slot->start_time))),
+
+  field_attach_prepare_view('appointment_slot', array($slot->slot_id => $slot), $view_mode);
+  entity_prepare_view('appointment_slot', array($slot->slot_id => $slot));
+  $build += field_attach_view('appointment_slot', $slot, $view_mode);
+
+  $build += array(
+    '#theme' => 'appointment_slot',
+    '#slot' => $slot,
+    '#view_mode' => $view_mode,
   );
-  $build['end_time'] = array(
-    '#type' => 'item',
-    '#markup' => t('End time: @time', array('@time' => format_date($slot->end_time))),
-  );
-  $build['capacity'] = array(
-    '#type' => 'item',
-    '#markup' => t('Capacity: @capacity', array('@capacity' => number_format($slot->capacity))),
-  );
-  $owner = $slot->uid ? user_load($slot->uid) : drupal_anonymous_user();
-  $build['owner'] = array(
-    '#type' => 'item',
-    '#markup' => t('Owner: !owner', array('!owner' => theme('username', array(
-      'account' => $owner,
-    )))),
-  );
+
+  if (!empty($slot->slot_id) && $view_mode == 'teaser') {
+    $build['#contextual_links']['appointment_slot'] = array('appointment-slot', array($slot->slot_id));
+  }
+
+  // Invoke hook_entity_view().
+  global $language;
+  $langcode = $language->language;
+  module_invoke_all('entity_view', $slot, 'appointment_slot', $view_mode, $langcode);
+
+  // Invoke hook_ENTITY_TYPE_view_alter() and hook_entity_view_alter().
+  $type = 'appointment_slot';
+  drupal_alter(array('appointment_slot_view', 'entity_view'), $build, $type);
+
   return $build;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function appointment_slot_theme() {
+  return array(
+    'appointment_slot' => array(
+      'render element' => 'elements',
+      'template' => 'includes/appointment-slot',
+      'file' => 'includes/appointment_slot.theme.inc',
+    ),
+  );
 }
 
 /**

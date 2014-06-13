@@ -1,0 +1,14 @@
+name = appointment_slot_fields
+core = 7.x
+package = Features
+dependencies[] = date
+dependencies[] = entityreference
+dependencies[] = features
+dependencies[] = number
+features[features_api][] = api:2
+features[field_base][] = field_appointment_capacity
+features[field_base][] = field_appointment_host
+features[field_base][] = field_appointment_time
+features[field_instance][] = appointment_slot-default-field_appointment_capacity
+features[field_instance][] = appointment_slot-default-field_appointment_host
+features[field_instance][] = appointment_slot-default-field_appointment_time
