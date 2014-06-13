@@ -12,12 +12,13 @@ function appointment_slot_entity_info() {
 
   $entities['appointment_slot'] = array(
     'label' => t('Appointment Slot'),
+    'entity class' => 'AppointmentSlotEntity',
+    'label callback' => 'entity_class_label',
+    'uri callback' => 'entity_class_uri',
     'access callback' => 'appointment_slot_access',
-    'uri callback' => 'appointment_slot_uri',
     'controller class' => 'AppointmentSlotController',
     'views controller class' => 'EntityDefaultViewsController',
     'base table' => 'appointment_slot',
-    'label callback' => 'appointment_slot_label',
     'entity keys' => array(
       'id' => 'slot_id',
       'label' => 'slot_id',
@@ -36,10 +37,6 @@ function appointment_slot_entity_info() {
       ),
       'teaser' => array(
         'label' => t('Teaser'),
-        'custom settings' => TRUE,
-      ),
-      'administrator' => array(
-        'label' => t('Administrator'),
         'custom settings' => TRUE,
       ),
     ),
@@ -81,18 +78,6 @@ function appointment_slot_field_extra_fields() {
 }
 
 /**
- * URI callback for an appointment slot.
- *
- * @return array
- *   An array containing a URI 'path'.
- */
-function appointment_slot_uri($slot) {
-  return array(
-    'path' => 'admin/appointments/slots/' . $slot->slot_id,
-  );
-}
-
-/**
  * Implements hook_menu().
  */
 function appointment_slot_menu() {
@@ -130,43 +115,44 @@ function appointment_slot_menu() {
     'access callback' => 'appointment_slot_access',
     'access arguments' => array('view', 2),
   );
-  $items['admin/appointments/slots/%appointment_slot'] = array(
-    'title callback' => 'entity_label',
-    'title arguments' => array('appointment_slot', 3),
-    'page callback' => 'appointment_slot_view',
-    'page arguments' => array(3, 'administrator'),
-    'access callback' => 'appointment_slot_access',
-    'access arguments' => array('update', 3),
-    'type' => MENU_CALLBACK,
-  );
-  $items['admin/appointments/slots/%appointment_slot/view'] = array(
+  $items['appointments/slots/%appointment_slot/view'] = array(
     'title' => 'View',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => 0,
   );
-  $items['admin/appointments/slots/%appointment_slot/edit'] = array(
+  $items['appointments/slots/%appointment_slot/edit'] = array(
     'title' => 'Edit',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('appointment_slot_form', 3),
+    'page arguments' => array('appointment_slot_form', 2),
     'access callback' => 'appointment_slot_access',
-    'access arguments' => array('update', 3),
+    'access arguments' => array('update', 2),
     'file' => 'includes/appointment_slot.forms.inc',
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
     'weight' => 1,
   );
-  $items['admin/appointments/slots/%appointment_slot/delete'] = array(
+  $items['appointments/slots/%appointment_slot/delete'] = array(
     'title' => 'Delete',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('appointment_slot_delete_confirm', 3),
+    'page arguments' => array('appointment_slot_delete_confirm', 2),
     'access callback' => 'appointment_slot_access',
-    'access arguments' => array('delete', 3),
+    'access arguments' => array('delete', 2),
     'file' => 'includes/appointment_slot.forms.inc',
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_INLINE,
     'weight' => 2,
   );
   return $items;
+}
+
+/**
+ * Implements hook_admin_paths().
+ */
+function appointment_slot_admin_paths() {
+  return array(
+    'appointments/slots/*/edit' => TRUE,
+    'appointments/slots/*/delete' => TRUE,
+  );
 }
 
 /**
@@ -192,7 +178,7 @@ function appointment_slot_menu_local_tasks_alter(&$data, $router_item, $root_pat
  *
  * @param string $op
  *   The operation to check access for ('view', 'delete', or 'update').
- * @param object $slot
+ * @param AppointmentSlotEntity $slot
  *   The slot entity.
  * @param object $account
  *   The Drupal user account (defaults to the current user).
@@ -200,7 +186,7 @@ function appointment_slot_menu_local_tasks_alter(&$data, $router_item, $root_pat
  * @return bool
  *   TRUE or FALSE for whether access is granted.
  */
-function appointment_slot_access($op, $slot, $account = NULL) {
+function appointment_slot_access($op, AppointmentSlotEntity $slot, $account = NULL) {
   $account = $account ? $account : $GLOBALS['user'];
   $own = $account->uid && $slot->uid == $account->uid;
   switch ($op) {
@@ -239,15 +225,6 @@ function appointment_slot_access($op, $slot, $account = NULL) {
  */
 function appointment_slot_add_title($type) {
   return t('Add new slot (@type)', array('@type' => $type->label));
-}
-
-/**
- * Label callback for an appointment slot.
- *
- * @return string
- */
-function appointment_slot_label($slot) {
-  return t('Slot #@id', array('@id' => $slot->slot_id));
 }
 
 /**
@@ -301,8 +278,14 @@ function appointment_slot_type_load($name = 'default') {
 
 /**
  * View an appointment slot.
+ *
+ * @param AppointmentSlotEntity $slot
+ * @param string $view_mode
+ *
+ * @return array
+ *   A Drupal render array.
  */
-function appointment_slot_view($slot, $view_mode = 'full') {
+function appointment_slot_view(AppointmentSlotEntity $slot, $view_mode = 'full') {
   $build = array();
 
   field_attach_prepare_view('appointment_slot', array($slot->slot_id => $slot), $view_mode);
@@ -349,7 +332,7 @@ function appointment_slot_theme() {
  *
  * @param int $slot_id
  *
- * @return object|FALSE
+ * @return AppointmentSlotEntity|FALSE
  *   The slot entity, or FALSE if it cannot be found.
  */
 function appointment_slot_load($slot_id) {
@@ -364,7 +347,7 @@ function appointment_slot_load($slot_id) {
  * @param array $conditions
  * @param bool $reset
  *
- * @return array
+ * @return AppointmentSlotEntity[]
  *   An array of appointment slot entities, keyed by the entity ID.
  */
 function appointment_slot_load_multiple(array $slot_ids = array(), array $conditions = array(), $reset = FALSE) {

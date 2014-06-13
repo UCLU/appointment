@@ -8,4 +8,5 @@ dependencies[] = date_popup
 dependencies[] = entity
 dependencies[] = entityreference
 
+files[] = includes/appointment_slot_entity.inc
 files[] = includes/appointment_slot.controller.inc

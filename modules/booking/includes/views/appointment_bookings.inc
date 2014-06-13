@@ -91,6 +91,8 @@ $handler->display->display_options['empty']['area']['format'] = 'plain_text';
 $handler->display->display_options['fields']['booking_id']['id'] = 'booking_id';
 $handler->display->display_options['fields']['booking_id']['table'] = 'appointment_booking';
 $handler->display->display_options['fields']['booking_id']['field'] = 'booking_id';
+$handler->display->display_options['fields']['booking_id']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['booking_id']['alter']['path'] = 'appointments/bookings/[booking_id]';
 /* Field: Appointment Booking: User */
 $handler->display->display_options['fields']['uid']['id'] = 'uid';
 $handler->display->display_options['fields']['uid']['table'] = 'appointment_booking';

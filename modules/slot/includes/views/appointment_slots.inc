@@ -119,7 +119,7 @@ $handler->display->display_options['fields']['slot_id']['id'] = 'slot_id';
 $handler->display->display_options['fields']['slot_id']['table'] = 'appointment_slot';
 $handler->display->display_options['fields']['slot_id']['field'] = 'slot_id';
 $handler->display->display_options['fields']['slot_id']['alter']['make_link'] = TRUE;
-$handler->display->display_options['fields']['slot_id']['alter']['path'] = 'admin/appointments/slots/[slot_id]';
+$handler->display->display_options['fields']['slot_id']['alter']['path'] = 'appointments/slots/[slot_id]';
 /* Field: Appointment Slot: Host */
 $handler->display->display_options['fields']['field_appointment_host']['id'] = 'field_appointment_host';
 $handler->display->display_options['fields']['field_appointment_host']['table'] = 'field_data_field_appointment_host';
@@ -172,7 +172,7 @@ $handler->display->display_options['fields']['nothing_1']['field'] = 'nothing';
 $handler->display->display_options['fields']['nothing_1']['label'] = 'Operations';
 $handler->display->display_options['fields']['nothing_1']['alter']['text'] = 'View';
 $handler->display->display_options['fields']['nothing_1']['alter']['make_link'] = TRUE;
-$handler->display->display_options['fields']['nothing_1']['alter']['path'] = 'admin/appointments/slots/[slot_id]';
+$handler->display->display_options['fields']['nothing_1']['alter']['path'] = 'appointments/slots/[slot_id]';
 /* Field: Global: Custom text */
 $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
 $handler->display->display_options['fields']['nothing']['table'] = 'views';
@@ -180,7 +180,7 @@ $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
 $handler->display->display_options['fields']['nothing']['label'] = 'Edit';
 $handler->display->display_options['fields']['nothing']['alter']['text'] = 'Edit';
 $handler->display->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
-$handler->display->display_options['fields']['nothing']['alter']['path'] = 'admin/appointments/slots/[slot_id]/edit';
+$handler->display->display_options['fields']['nothing']['alter']['path'] = 'appointments/slots/[slot_id]/edit';
 /* Field: Global: Custom text */
 $handler->display->display_options['fields']['nothing_2']['id'] = 'nothing_2';
 $handler->display->display_options['fields']['nothing_2']['table'] = 'views';
@@ -188,7 +188,7 @@ $handler->display->display_options['fields']['nothing_2']['field'] = 'nothing';
 $handler->display->display_options['fields']['nothing_2']['label'] = 'Delete';
 $handler->display->display_options['fields']['nothing_2']['alter']['text'] = 'Delete';
 $handler->display->display_options['fields']['nothing_2']['alter']['make_link'] = TRUE;
-$handler->display->display_options['fields']['nothing_2']['alter']['path'] = 'admin/appointments/slots/[slot_id]/delete';
+$handler->display->display_options['fields']['nothing_2']['alter']['path'] = 'appointments/slots/[slot_id]/delete';
 
 /* Display: Page */
 $handler = $view->new_display('page', 'Page', 'page');

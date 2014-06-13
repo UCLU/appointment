@@ -12,11 +12,13 @@ function appointment_booking_entity_info() {
 
   $entities['appointment_booking'] = array(
     'label' => t('Appointment Booking'),
+    'entity class' => 'AppointmentBookingEntity',
+    'label callback' => 'entity_class_label',
+    'uri callback' => 'entity_class_uri',
     'access callback' => 'appointment_booking_access',
     'controller class' => 'AppointmentBookingController',
     'views controller class' => 'EntityDefaultViewsController',
     'base table' => 'appointment_booking',
-    'label callback' => 'appointment_booking_label',
     'entity keys' => array(
       'id' => 'booking_id',
       'label' => 'booking_id',
@@ -63,37 +65,37 @@ function appointment_booking_menu() {
     'type' => MENU_LOCAL_ACTION,
     'context' => MENU_CONTEXT_INLINE | MENU_CONTEXT_PAGE,
   );
-  $items['admin/appointments/bookings/%appointment_booking'] = array(
+  $items['appointments/bookings/%appointment_booking'] = array(
     'title callback' => 'entity_label',
-    'title arguments' => array('appointment_booking', 3),
+    'title arguments' => array('appointment_booking', 2),
     'page callback' => 'appointment_booking_view',
-    'page arguments' => array(3),
+    'page arguments' => array(2),
     'access callback' => 'appointment_booking_access',
-    'access arguments' => array('update', 3),
+    'access arguments' => array('view', 2),
     'type' => MENU_CALLBACK,
   );
-  $items['admin/appointments/bookings/%appointment_booking/view'] = array(
+  $items['appointments/bookings/%appointment_booking/view'] = array(
     'title' => 'View',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => 0,
   );
-  $items['admin/appointments/bookings/%appointment_booking/edit'] = array(
+  $items['appointments/bookings/%appointment_booking/edit'] = array(
     'title' => 'Edit',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('appointment_booking_edit_form', 3),
+    'page arguments' => array('appointment_booking_edit_form', 2),
     'access callback' => 'appointment_booking_access',
-    'access arguments' => array('update', 3),
+    'access arguments' => array('update', 2),
     'file' => 'includes/appointment_booking.forms.inc',
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
     'weight' => 1,
   );
-  $items['admin/appointments/bookings/%appointment_booking/delete'] = array(
+  $items['appointments/bookings/%appointment_booking/delete'] = array(
     'title' => 'Delete',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('appointment_booking_delete_confirm', 3),
+    'page arguments' => array('appointment_booking_delete_confirm', 2),
     'access callback' => 'appointment_booking_access',
-    'access arguments' => array('delete', 3),
+    'access arguments' => array('delete', 2),
     'file' => 'includes/appointment_booking.forms.inc',
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_INLINE,
@@ -103,14 +105,24 @@ function appointment_booking_menu() {
 }
 
 /**
+ * Implements hook_admin_paths().
+ */
+function appointment_booking_admin_paths() {
+  return array(
+    'appointments/bookings/*/edit' => TRUE,
+    'appointments/bookings/*/delete' => TRUE,
+  );
+}
+
+/**
  * Access callback for booking an appointment based on a particular slot.
  *
- * @param object $slot
+ * @param AppointmentSlotEntity $slot
  * @param object $account
  *
  * @return bool
  */
-function appointment_booking_access_by_slot($slot, $account = NULL) {
+function appointment_booking_access_by_slot(AppointmentSlotEntity $slot, $account = NULL) {
   $account = $account ? $account : $GLOBALS['user'];
   if (user_access('appointment booking: create', $account)) {
     if (empty($slot->data) || empty($slot->data['booking_roles'])) {
@@ -128,7 +140,7 @@ function appointment_booking_access_by_slot($slot, $account = NULL) {
  *
  * @param string $op
  *   The operation to check access for ('view', 'delete', or 'update').
- * @param object $booking
+ * @param AppointmentBookingEntity $booking
  *   The booking entity.
  * @param object $account
  *   The Drupal user account (defaults to the current user).
@@ -136,7 +148,7 @@ function appointment_booking_access_by_slot($slot, $account = NULL) {
  * @return bool
  *   TRUE or FALSE for whether access is granted.
  */
-function appointment_booking_access($op, $booking, $account = NULL) {
+function appointment_booking_access($op, AppointmentBookingEntity $booking, $account = NULL) {
   $account = $account ? $account : $GLOBALS['user'];
   $own = $account->uid && $booking->uid == $account->uid;
   switch ($op) {
@@ -168,7 +180,7 @@ function appointment_booking_access($op, $booking, $account = NULL) {
  *
  * @param int $booking_id
  *
- * @return object|FALSE
+ * @return AppointmentBookingEntity|FALSE
  *   The booking entity, or FALSE if it cannot be found.
  */
 function appointment_booking_load($booking_id) {
@@ -183,7 +195,7 @@ function appointment_booking_load($booking_id) {
  * @param array $conditions
  * @param bool $reset
  *
- * @return array
+ * @return AppointmentBookingEntity[]
  *   An array of appointment booking entities, keyed by the entity ID.
  */
 function appointment_booking_load_multiple(array $booking_ids = array(), array $conditions = array(), $reset = FALSE) {
@@ -198,15 +210,6 @@ function appointment_booking_views_api() {
     'api' => 3,
     'path' => drupal_get_path('module', 'appointment_booking') . '/includes',
   );
-}
-
-/**
- * Label callback for an appointment booking.
- *
- * @return string
- */
-function appointment_booking_label($booking) {
-  return t('Booking #@id', array('@id' => $booking->booking_id));
 }
 
 /**
@@ -228,8 +231,14 @@ function appointment_booking_permission() {
 
 /**
  * View an appointment booking.
+ *
+ * @param AppointmentBookingEntity $booking
+ * @param string $view_mode
+ *
+ * @return array
+ *   A Drupal render array.
  */
-function appointment_booking_view($booking, $view_mode = 'default') {
+function appointment_booking_view(AppointmentBookingEntity $booking, $view_mode = 'default') {
   $build = array();
 
   field_attach_prepare_view('appointment_booking', array($booking->booking_id => $booking), $view_mode);

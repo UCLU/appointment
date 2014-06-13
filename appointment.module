@@ -20,15 +20,6 @@ function appointment_menu() {
 }
 
 /**
- * Implements hook_admin_paths().
- */
-function appointment_admin_paths() {
-  return array(
-    'admin/appointments' => TRUE,
-  );
-}
-
-/**
  * Implements hook_permission().
  */
 function appointment_permission() {
