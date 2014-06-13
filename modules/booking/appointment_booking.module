@@ -5,18 +5,30 @@
  */
 
 /**
- * Create a booking.
- *
- * @return array
+ * Implements hook_entity_info().
  */
-function appointment_booking_create($slot, $account, $status = 'draft') {
-  $booking = array(
-    'slot_id' => $slot->slot_id,
-    'booking_status' => $status,
-    'uid' => $account->uid,
+function appointment_booking_entity_info() {
+  $entities = array();
+
+  $entities['appointment_booking'] = array(
+    'label' => t('Appointment Booking'),
+    'access callback' => 'appointment_booking_access',
+    'controller class' => 'EntityApiController',
+    'views controller class' => 'EntityDefaultViewsController',
+    'base table' => 'appointment_booking',
+    'entity keys' => array(
+      'id' => 'booking_id',
+      'label' => 'booking_id',
+    ),
+    'static cache' => TRUE,
+    'fieldable' => TRUE,
+    'module' => 'appointment_booking',
+    'view callback' => 'entity_metadata_view_single',
+    'metatags' => FALSE,
+    'redirect' => FALSE,
   );
-  drupal_write_record('appointment_booking', $booking);
-  return $booking;
+
+  return $entities;
 }
 
 /**
@@ -32,5 +44,93 @@ function appointment_booking_status_options() {
     'pending' => t('Pending'),
     'booked' => t('Booked'),
     'canceled' => t('Canceled'),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function appointment_booking_menu() {
+  $items = array();
+  $items['admin/appointments/bookings/add'] = array(
+    'title' => 'Add new booking',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('appointment_booking_form', 'default'),
+    'access arguments' => array('appointment booking: add new'),
+    'file' => 'includes/appointment_booking.forms.inc',
+  );
+  $items['admin/appointments/bookings/%appointment_booking'] = array(
+    'title callback' => 'entity_label',
+    'title arguments' => array('appointment_booking', 3),
+    'page callback' => 'appointment_booking_view',
+    'page arguments' => array(3),
+    'access callback' => 'appointment_booking_access',
+    'access arguments' => array('update', 3),
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/appointments/bookings/%appointment_booking/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 0,
+  );
+  $items['admin/appointments/bookings/%appointment_booking/edit'] = array(
+    'title' => 'Edit',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('appointment_booking_form', 3),
+    'access callback' => 'appointment_booking_access',
+    'access arguments' => array('update', 3),
+    'file' => 'includes/appointment_booking.forms.inc',
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'weight' => 1,
+  );
+  $items['admin/appointments/bookings/%appointment_booking/delete'] = array(
+    'title' => 'Delete',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('appointment_booking_delete_confirm', 3),
+    'access callback' => 'appointment_booking_access',
+    'access arguments' => array('delete', 3),
+    'file' => 'includes/appointment_booking.forms.inc',
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_INLINE,
+    'weight' => 2,
+  );
+  return $items;
+}
+
+/**
+ * Load an appointment booking.
+ *
+ * @param int $booking_id
+ *
+ * @return object|FALSE
+ *   The booking entity, or FALSE if it cannot be found.
+ */
+function appointment_booking_load($booking_id) {
+  $bookings = appointment_booking_load_multiple(array($booking_id));
+  return $bookings ? reset($bookings) : FALSE;
+}
+
+/**
+ * Load multiple appointment bookings.
+ *
+ * @param array $booking_ids
+ * @param array $conditions
+ * @param bool $reset
+ *
+ * @return array
+ *   An array of appointment booking entities, keyed by the entity ID.
+ */
+function appointment_booking_load_multiple(array $booking_ids = array(), array $conditions = array(), $reset = FALSE) {
+  return entity_load('appointment_booking', $booking_ids, $conditions, $reset);
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function appointment_booking_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'appointment_booking') . '/includes',
   );
 }
