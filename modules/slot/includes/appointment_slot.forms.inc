@@ -111,7 +111,7 @@ function appointment_slot_form_submit($form, &$form_state) {
 /**
  * Form to confirm the delete action for an appointment slot.
  */
-function appointment_slot_delete_confirm($form, &$form_state, stdClass $slot) {
+function appointment_slot_delete_confirm($form, &$form_state, AppointmentSlotEntity $slot) {
   $form_state['slot'] = $slot;
   $form['slot_id'] = array(
     '#type' => 'value',

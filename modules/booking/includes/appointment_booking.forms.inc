@@ -150,7 +150,7 @@ function appointment_booking_edit_form_submit($form, &$form_state) {
 /**
  * Form to confirm the delete action for an appointment booking.
  */
-function appointment_booking_delete_confirm($form, &$form_state, stdClass $booking) {
+function appointment_booking_delete_confirm($form, &$form_state, AppointmentBookingEntity $booking) {
   $form_state['booking'] = $booking;
   $form['booking_id'] = array(
     '#type' => 'value',
