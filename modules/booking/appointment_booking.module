@@ -36,9 +36,9 @@ function appointment_booking_entity_info() {
     'redirect' => FALSE,
   );
 
-  foreach (appointment_booking_type_options() as $name => $label) {
+  foreach (appointment_booking_types() as $name => $type) {
     $entities['appointment_booking']['bundles'][$name] = array(
-      'label' => $label,
+      'label' => $type->label,
       'admin' => array(
         'path' => 'admin/appointments/bookings/types/' . $name,
         'real path' => 'admin/appointments/bookings/types/' . $name,
@@ -271,21 +271,6 @@ function appointment_booking_types() {
       'description' => t('A default booking type.'),
     ),
   );
-}
-
-/**
- * Get a list of booking types as a single-dimensional options list array.
- *
- * @return array
- *   An associative array of booking types: the keys are machine names and the
- *   values are human-readable labels.
- */
-function appointment_booking_type_options() {
-  $options = array();
-  foreach (appointment_booking_types() as $name => $type) {
-    $options[$name] = $type->label;
-  }
-  return $options;
 }
 
 /**

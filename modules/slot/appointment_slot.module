@@ -46,9 +46,9 @@ function appointment_slot_entity_info() {
     'redirect' => FALSE,
   );
 
-  foreach (appointment_slot_type_options() as $name => $label) {
+  foreach (appointment_slot_types() as $name => $type) {
     $entities['appointment_slot']['bundles'][$name] = array(
-      'label' => $label,
+      'label' => $type->label,
       'admin' => array(
         'path' => 'admin/appointments/slots/types/' . $name,
         'real path' => 'admin/appointments/slots/types/' . $name,
@@ -367,21 +367,6 @@ function appointment_slot_types() {
       'description' => t('A default slot type.'),
     ),
   );
-}
-
-/**
- * Get a list of slot types as a single-dimensional options list array.
- *
- * @return array
- *   An associative array of slot types: the keys are machine names and the
- *   values are human-readable labels.
- */
-function appointment_slot_type_options() {
-  $options = array();
-  foreach (appointment_slot_types() as $name => $type) {
-    $options[$name] = $type->label;
-  }
-  return $options;
 }
 
 /**

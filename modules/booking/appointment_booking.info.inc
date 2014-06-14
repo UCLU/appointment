@@ -38,7 +38,6 @@ function appointment_booking_entity_property_info() {
       'description' => t('The booking type.'),
       'required' => TRUE,
       'schema field' => 'type',
-      'options list' => 'appointment_booking_type_options',
       'setter callback' => 'entity_property_verbatim_set',
     ),
     'uid' => array(

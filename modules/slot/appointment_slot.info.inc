@@ -23,7 +23,6 @@ function appointment_slot_entity_property_info() {
       'description' => t('The slot type.'),
       'required' => TRUE,
       'schema field' => 'type',
-      'options list' => 'appointment_slot_type_options',
       'setter callback' => 'entity_property_verbatim_set',
     ),
     'uid' => array(
