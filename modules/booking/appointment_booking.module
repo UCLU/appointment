@@ -73,7 +73,7 @@ function appointment_booking_status_options() {
 function appointment_booking_menu() {
   $items = array();
   $items['appointments/slots/%appointment_slot/book'] = array(
-    'title' => 'Book',
+    'title' => 'Book this slot',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('appointment_booking_form', 2),
     'access callback' => 'appointment_booking_access_by_slot',
@@ -255,6 +255,20 @@ function appointment_booking_field_extra_fields() {
       ),
     );
   }
+  foreach (appointment_slot_types() as $bundle => $type) {
+    $extra['appointment_slot'][$bundle]['display'] = array(
+      'book' => array(
+        'label' => t('Booking link'),
+        'weight' => -10,
+      ),
+    );
+    $extra['appointment_slot'][$bundle]['form'] = array(
+      'booking_roles' => array(
+        'label' => t('Booking access'),
+        'weight' => 2,
+      ),
+    );
+  }
   return $extra;
 }
 
@@ -325,6 +339,26 @@ function appointment_booking_view(AppointmentBookingEntity $booking, $view_mode 
   );
 
   return $build;
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_view_alter().
+ */
+function appointment_booking_appointment_slot_view_alter(&$build) {
+  $slot = $build['#slot'];
+  $build['book'] = array(
+    '#theme' => 'link',
+    '#prefix' => '<div class="appointment-booking-link">',
+    '#suffix' => '</div>',
+    '#text' => t('Book this slot'),
+    '#path' => 'appointments/slots/' . $slot->slot_id . '/book',
+    '#options' => array(
+      'query' => drupal_get_destination(),
+      'attributes' => array(),
+      'html' => FALSE,
+    ),
+    '#weight' => -10,
+  );
 }
 
 /**

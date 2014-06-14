@@ -13,6 +13,7 @@ class AppointmentBookingController extends EntityApiController {
     $default_values = array(
       'booking_id' => NULL,
       'slot_id' => NULL,
+      'type' => 'default',
       'uid' => NULL,
       'booking_status' => 'draft',
       'webform_nid' => NULL,
