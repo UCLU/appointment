@@ -22,7 +22,12 @@ function appointment_booking_entity_info() {
     'entity keys' => array(
       'id' => 'booking_id',
       'label' => 'booking_id',
+      'bundle' => 'type',
     ),
+    'bundle keys' => array(
+      'bundle' => 'type',
+    ),
+    'bundles' => array(),
     'static cache' => TRUE,
     'fieldable' => TRUE,
     'module' => 'appointment_booking',
@@ -30,6 +35,18 @@ function appointment_booking_entity_info() {
     'metatags' => FALSE,
     'redirect' => FALSE,
   );
+
+  foreach (appointment_booking_type_options() as $name => $label) {
+    $entities['appointment_booking']['bundles'][$name] = array(
+      'label' => $label,
+      'admin' => array(
+        'path' => 'admin/appointments/bookings/types/' . $name,
+        'real path' => 'admin/appointments/bookings/types/' . $name,
+        'bundle argument' => 4,
+        'access arguments' => array('appointment booking: administer types'),
+      ),
+    );
+  }
 
   return $entities;
 }
@@ -100,6 +117,13 @@ function appointment_booking_menu() {
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_INLINE,
     'weight' => 2,
+  );
+  $items['admin/appointments/bookings/types'] = array(
+    'title' => 'Appointment booking types',
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('appointment booking: administer types'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
   );
   return $items;
 }
@@ -213,10 +237,65 @@ function appointment_booking_views_api() {
 }
 
 /**
+ * Implements hook_field_extra_fields().
+ */
+function appointment_booking_field_extra_fields() {
+  $extra = array();
+  foreach (appointment_booking_types() as $bundle => $type) {
+    $extra['appointment_booking'][$bundle]['form'] = array(
+      'status' => array(
+        'label' => t('Status'),
+        'weight' => 0,
+      ),
+    );
+    $extra['appointment_booking'][$bundle]['display'] = array(
+      'status' => array(
+        'label' => t('Status'),
+        'weight' => 0,
+      ),
+    );
+  }
+  return $extra;
+}
+
+/**
+ * Get a list of booking types.
+ *
+ * @return array
+ *   An array of type objects.
+ */
+function appointment_booking_types() {
+  return array(
+    'default' => (object) array(
+      'label' => t('Default'),
+      'description' => t('A default booking type.'),
+    ),
+  );
+}
+
+/**
+ * Get a list of booking types as a single-dimensional options list array.
+ *
+ * @return array
+ *   An associative array of booking types: the keys are machine names and the
+ *   values are human-readable labels.
+ */
+function appointment_booking_type_options() {
+  $options = array();
+  foreach (appointment_booking_types() as $name => $type) {
+    $options[$name] = $type->label;
+  }
+  return $options;
+}
+
+/**
  * Implements hook_permission().
  */
 function appointment_booking_permission() {
   return array(
+    'appointment booking: administer types' => array(
+      'title' => t('Administer appointment booking types'),
+    ),
     'appointment booking: update any' => array(
       'title' => t('Update any appointment bookings'),
     ),
@@ -240,6 +319,15 @@ function appointment_booking_permission() {
  */
 function appointment_booking_view(AppointmentBookingEntity $booking, $view_mode = 'default') {
   $build = array();
+
+  $statuses = appointment_booking_status_options();
+  $status_label = $statuses[$booking->booking_status];
+
+  $build['status'] = array(
+    '#prefix' => '<p>',
+    '#suffix' => '</p>',
+    '#markup' => '<strong>' . t('Status') . ': </strong>' . $status_label,
+  );
 
   field_attach_prepare_view('appointment_booking', array($booking->booking_id => $booking), $view_mode);
   entity_prepare_view('appointment_booking', array($booking->booking_id => $booking));

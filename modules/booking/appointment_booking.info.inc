@@ -32,6 +32,15 @@ function appointment_booking_entity_property_info() {
       'options list' => 'appointment_booking_status_options',
       'setter callback' => 'entity_property_verbatim_set',
     ),
+    'type' => array(
+      'label' => t('Type'),
+      'type' => 'token',
+      'description' => t('The booking type.'),
+      'required' => TRUE,
+      'schema field' => 'type',
+      'options list' => 'appointment_booking_type_options',
+      'setter callback' => 'entity_property_verbatim_set',
+    ),
     'uid' => array(
       'label' => t('User'),
       'description' => t('The user who created or who owns the booking.'),

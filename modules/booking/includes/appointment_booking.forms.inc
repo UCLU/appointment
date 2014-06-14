@@ -110,7 +110,7 @@ function appointment_booking_edit_form($form, &$form_state, $booking) {
   );
   $form['buttons']['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Submit booking'),
+    '#value' => t('Save'),
   );
 
   if (!empty($_GET['destination'])) {

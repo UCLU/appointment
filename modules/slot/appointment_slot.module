@@ -50,9 +50,9 @@ function appointment_slot_entity_info() {
     $entities['appointment_slot']['bundles'][$name] = array(
       'label' => $label,
       'admin' => array(
-        'path' => 'admin/appointments/types/' . $name,
-        'real path' => 'admin/appointments/types/' . $name,
-        'bundle argument' => 3,
+        'path' => 'admin/appointments/slots/types/' . $name,
+        'real path' => 'admin/appointments/slots/types/' . $name,
+        'bundle argument' => 4,
         'access arguments' => array('appointment slot: administer types'),
       ),
     );
@@ -89,7 +89,7 @@ function appointment_slot_menu() {
     'file' => 'system.admin.inc',
     'file path' => drupal_get_path('module', 'system'),
   );
-  $items['admin/appointments/types'] = array(
+  $items['admin/appointments/slots/types'] = array(
     'title' => 'Appointment slot types',
     'page callback' => 'system_admin_menu_block_page',
     'access arguments' => array('appointment slot: administer types'),

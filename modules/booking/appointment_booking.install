@@ -31,6 +31,13 @@ function appointment_booking_schema() {
         'length' => 100,
         'not null' => TRUE,
       ),
+      'type' => array(
+        'description' => 'The type of the booking (machine name).',
+        'type' => 'varchar',
+        'length' => 100,
+        'not null' => TRUE,
+        'default' => 'default',
+      ),
       'uid' => array(
         'description' => 'The {users}.uid of the appointment\'s owner/creator.',
         'type' => 'int',
@@ -68,6 +75,7 @@ function appointment_booking_schema() {
     'indexes' => array(
       'slot_id' => array('slot_id'),
       'uid' => array('uid'),
+      'type' => array('type'),
       'booking_status' => array('booking_status'),
       'created' => array('created'),
       'changed' => array('changed'),
