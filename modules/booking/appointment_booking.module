@@ -74,13 +74,11 @@ function appointment_booking_menu() {
   $items = array();
   $items['appointments/slots/%appointment_slot/book'] = array(
     'title' => 'Book this slot',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('appointment_booking_form', 2),
+    'page callback' => 'appointment_booking_page',
+    'page arguments' => array(2),
     'access callback' => 'appointment_booking_access_by_slot',
     'access arguments' => array(2),
     'file' => 'includes/appointment_booking.forms.inc',
-    'type' => MENU_LOCAL_ACTION,
-    'context' => MENU_CONTEXT_INLINE | MENU_CONTEXT_PAGE,
   );
   $items['appointments/bookings/%appointment_booking'] = array(
     'title callback' => 'entity_label',
@@ -285,6 +283,28 @@ function appointment_booking_types() {
       'description' => t('A default booking type.'),
     ),
   );
+}
+
+/**
+ * Load an appointment booking for a given slot and user account.
+ *
+ * @param AppointmentSlotEntity $slot
+ * @param object $account
+ *
+ * @return AppointmentBookingEntity|FALSE
+ */
+function appointment_booking_load_by_user(AppointmentSlotEntity $slot, $account = NULL) {
+  $account = $account ? $account : $GLOBALS['user'];
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'appointment_booking')
+    ->propertyCondition('slot_id', $slot->slot_id)
+    ->propertyCondition('uid', $account->uid);
+  $result = $query->execute();
+  if (!$result || empty($result['appointment_booking'])) {
+    return FALSE;
+  }
+  $ids = array_keys($result['appointment_booking']);
+  return appointment_booking_load(reset($ids));
 }
 
 /**
