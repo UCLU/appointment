@@ -7,6 +7,22 @@
 class AppointmentBookingController extends EntityApiController {
 
   /**
+   * Overrides EntityAPIController::load(), adding a 'slot' property.
+   */
+  public function load($ids = array(), $conditions = array()) {
+    $entities = parent::load($ids, $conditions);
+    $slot_ids = array();
+    foreach ($entities as $entity) {
+      $slot_ids[] = $entity->slot_id;
+    }
+    $slots = $slot_ids ? appointment_slot_load_multiple($slot_ids) : array();
+    foreach ($entities as $entity) {
+      $entity->slot = isset($slots[$entity->slot_id]) ? $slots[$entity->slot_id] : FALSE;
+    }
+    return $entities;
+  }
+
+  /**
    * Overrides EntityAPIController::create(), allowing defaults to be defined.
    */
   public function create(array $values = array()) {
