@@ -61,7 +61,6 @@ function appointment_booking_entity_info() {
 function appointment_booking_status_options() {
   return array(
     'draft' => t('Draft'),
-    'pending' => t('Pending'),
     'booked' => t('Booked'),
     'canceled' => t('Canceled'),
   );
@@ -115,6 +114,16 @@ function appointment_booking_menu() {
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_INLINE,
     'weight' => 2,
+  );
+  $items['appointments/bookings/%appointment_booking/cancel'] = array(
+    'title' => 'Cancel',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('appointment_booking_cancel_confirm', 2),
+    'access callback' => 'appointment_booking_access',
+    'access arguments' => array('cancel', 2),
+    'file' => 'includes/appointment_booking.forms.inc',
+    'type' => MENU_CALLBACK,
+    'weight' => 3,
   );
   $items['admin/appointments/bookings/types'] = array(
     'title' => 'Appointment booking types',
@@ -179,6 +188,12 @@ function appointment_booking_access($op, AppointmentBookingEntity $booking, $acc
         return TRUE;
       }
       elseif (user_access('appointment booking: update any', $account)) {
+        return TRUE;
+      }
+      return FALSE;
+
+    case 'cancel':
+      if ($own && user_access('appointment booking: cancel own', $account)) {
         return TRUE;
       }
       return FALSE;
@@ -256,13 +271,13 @@ function appointment_booking_field_extra_fields() {
   foreach (appointment_slot_types() as $bundle => $type) {
     $extra['appointment_slot'][$bundle]['display'] = array(
       'book' => array(
-        'label' => t('Booking link'),
+        'label' => t('Booking form'),
         'weight' => -10,
       ),
     );
     $extra['appointment_slot'][$bundle]['form'] = array(
-      'booking_roles' => array(
-        'label' => t('Booking access'),
+      'booking' => array(
+        'label' => t('Booking settings'),
         'weight' => 2,
       ),
     );
@@ -289,9 +304,13 @@ function appointment_booking_types() {
  * Load an appointment booking for a given slot and user account.
  *
  * @param AppointmentSlotEntity $slot
+ *   The slot entity.
  * @param object $account
+ *   The Drupal user account entity (defaults to the current user).
  *
  * @return AppointmentBookingEntity|FALSE
+ *   The booking entity, or FALSE if the user does not have a booking yet for
+ *   this slot.
  */
 function appointment_booking_load_by_user(AppointmentSlotEntity $slot, $account = NULL) {
   $account = $account ? $account : $GLOBALS['user'];
@@ -321,6 +340,9 @@ function appointment_booking_permission() {
     'appointment booking: update own' => array(
       'title' => t('Update own appointment bookings'),
     ),
+    'appointment booking: cancel own' => array(
+      'title' => t('Cancel own appointment bookings'),
+    ),
     'appointment booking: create' => array(
       'title' => t('Make appointment bookings'),
     ),
@@ -341,6 +363,12 @@ function appointment_booking_view(AppointmentBookingEntity $booking, $view_mode 
 
   $statuses = appointment_booking_status_options();
   $status_label = $statuses[$booking->booking_status];
+
+  $slot = appointment_slot_load($booking->slot_id);
+
+  $slot_view = appointment_slot_view($slot, 'booking_page');
+  unset($slot_view['book']);
+  $build['slot'] = $slot_view;
 
   $build['status'] = array(
     '#prefix' => '<p>',
@@ -366,19 +394,9 @@ function appointment_booking_view(AppointmentBookingEntity $booking, $view_mode 
  */
 function appointment_booking_appointment_slot_view_alter(&$build) {
   $slot = $build['#slot'];
-  $build['book'] = array(
-    '#theme' => 'link',
-    '#prefix' => '<div class="appointment-booking-link">',
-    '#suffix' => '</div>',
-    '#text' => t('Book this slot'),
-    '#path' => 'appointments/slots/' . $slot->slot_id . '/book',
-    '#options' => array(
-      'query' => drupal_get_destination(),
-      'attributes' => array(),
-      'html' => FALSE,
-    ),
-    '#weight' => -10,
-  );
+  module_load_include('inc', 'appointment_booking', 'includes/appointment_booking.forms');
+  $booking_form = drupal_get_form('appointment_booking_make_form', $slot);
+  $build['book'] = $booking_form;
 }
 
 /**
@@ -387,13 +405,13 @@ function appointment_booking_appointment_slot_view_alter(&$build) {
 function appointment_booking_form_appointment_slot_form_alter(&$form, &$form_state) {
   $slot = $form_state['slot'];
   $booking_roles = $slot->data && isset($slot->data['booking_roles']) ? $slot->data['booking_roles'] : array();
-  $form['booking_roles'] = array(
-    '#title' => t('Booking access'),
+  $form['booking'] = array(
+    '#title' => t('Booking settings'),
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
     '#collapsed' => empty($booking_roles),
   );
-  $form['booking_roles']['booking_roles'] = array(
+  $form['booking']['booking_roles'] = array(
     '#title' => t('Roles'),
     '#type' => 'checkboxes',
     '#options' => user_roles(),

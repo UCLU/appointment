@@ -70,11 +70,10 @@ function appointment_booking_schema() {
     ),
     'primary key' => array('booking_id'),
     'unique keys' => array(
+      'slot_user' => array('slot_id', 'uid'),
       'submission' => array('webform_nid', 'webform_sid'),
     ),
     'indexes' => array(
-      'slot_id' => array('slot_id'),
-      'uid' => array('uid'),
       'type' => array('type'),
       'booking_status' => array('booking_status'),
       'created' => array('created'),

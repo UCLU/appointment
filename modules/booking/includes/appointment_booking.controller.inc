@@ -39,6 +39,10 @@ class AppointmentBookingController extends EntityApiController {
     }
     $entity->changed = REQUEST_TIME;
 
+    if (!$entity->uid) {
+      throw new Exception('Cannot save bookings for anonymous users');
+    }
+
     return parent::save($entity, $transaction);
   }
 

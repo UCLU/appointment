@@ -21,7 +21,7 @@ function template_preprocess_appointment_slot(&$variables) {
   // Detect whether the slot is on its own page.
   $is_page = $view_mode == 'full';
   if (!$is_page) {
-    $page_slot = menu_get_object('appointment_slot');
+    $page_slot = menu_get_object('appointment_slot', 2);
     $is_page = $page_slot && $page_slot->slot_id == $slot->slot_id;
   }
 
