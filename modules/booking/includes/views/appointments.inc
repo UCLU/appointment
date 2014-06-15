@@ -23,8 +23,7 @@ $handler->display->display_options['access']['perm'] = 'appointment slot: add ne
 $handler->display->display_options['cache']['type'] = 'none';
 $handler->display->display_options['query']['type'] = 'views_query';
 $handler->display->display_options['exposed_form']['type'] = 'basic';
-$handler->display->display_options['pager']['type'] = 'full';
-$handler->display->display_options['pager']['options']['items_per_page'] = '25';
+$handler->display->display_options['pager']['type'] = 'date_views_pager';
 $handler->display->display_options['style_plugin'] = 'default';
 $handler->display->display_options['row_plugin'] = 'entity';
 $handler->display->display_options['row_options']['view_mode'] = 'teaser';
@@ -72,7 +71,7 @@ $handler->display->display_options['fields']['changed']['table'] = 'appointment_
 $handler->display->display_options['fields']['changed']['field'] = 'changed';
 $handler->display->display_options['fields']['changed']['label'] = 'Last modified';
 $handler->display->display_options['fields']['changed']['date_format'] = 'time ago';
-/* Sort criterion: Appointment Slot: Date and time (field_appointment_time) */
+/* Sort criterion: Appointment Slot: Date and time -  start date (field_appointment_time) */
 $handler->display->display_options['sorts']['field_appointment_time_value']['id'] = 'field_appointment_time_value';
 $handler->display->display_options['sorts']['field_appointment_time_value']['table'] = 'field_data_field_appointment_time';
 $handler->display->display_options['sorts']['field_appointment_time_value']['field'] = 'field_appointment_time_value';
@@ -83,6 +82,12 @@ $handler->display->display_options['filters']['published']['field'] = 'published
 $handler->display->display_options['filters']['published']['value'] = array(
   1 => '1',
 );
+/* Filter criterion: Appointment Slot: Date and time -  start date (field_appointment_time) */
+$handler->display->display_options['filters']['field_appointment_time_value']['id'] = 'field_appointment_time_value';
+$handler->display->display_options['filters']['field_appointment_time_value']['table'] = 'field_data_field_appointment_time';
+$handler->display->display_options['filters']['field_appointment_time_value']['field'] = 'field_appointment_time_value';
+$handler->display->display_options['filters']['field_appointment_time_value']['operator'] = '>=';
+$handler->display->display_options['filters']['field_appointment_time_value']['default_date'] = 'now';
 
 /* Display: Page */
 $handler = $view->new_display('page', 'Page', 'page');
