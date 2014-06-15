@@ -134,6 +134,9 @@ function appointment_booking_admin_paths() {
  */
 function appointment_booking_access_by_slot(AppointmentSlotEntity $slot, $account = NULL) {
   $account = $account ? $account : $GLOBALS['user'];
+  if ($slot->getEndTime() <= REQUEST_TIME) {
+    return FALSE;
+  }
   if (user_access('appointment booking: create', $account)) {
     if (empty($slot->data) || empty($slot->data['booking_roles'])) {
       return TRUE;

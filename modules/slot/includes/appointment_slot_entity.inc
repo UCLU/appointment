@@ -22,4 +22,14 @@ class AppointmentSlotEntity extends Entity {
     );
   }
 
+  /**
+   * Get the end time of this slot.
+   *
+   * @return int
+   *   A UNIX timestamp representing the start date and time.
+   */
+  public function getEndTime() {
+    return strtotime($this->field_appointment_time[LANGUAGE_NONE][0]['value2']);
+  }
+
 }

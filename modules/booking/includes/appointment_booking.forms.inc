@@ -181,7 +181,7 @@ function appointment_booking_cancel_confirm($form, &$form_state, AppointmentBook
 function appointment_booking_cancel_confirm_submit($form, &$form_state) {
   $booking = $form_state['booking'];
   entity_get_controller('appointment_booking')->delete(array($booking->booking_id));
-  drupal_set_message(t('The booking @id has been deleted.', array(
+  drupal_set_message(t('The booking @id has been canceled.', array(
     '@id' => $booking->booking_id,
   )));
   if (empty($_GET['destination'])) {
