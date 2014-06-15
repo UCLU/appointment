@@ -62,7 +62,6 @@ function appointment_booking_status_options() {
   return array(
     'draft' => t('Draft'),
     'booked' => t('Booked'),
-    'canceled' => t('Canceled'),
   );
 }
 
@@ -71,14 +70,6 @@ function appointment_booking_status_options() {
  */
 function appointment_booking_menu() {
   $items = array();
-  $items['appointments/slots/%appointment_slot/book'] = array(
-    'title' => 'Book this slot',
-    'page callback' => 'appointment_booking_page',
-    'page arguments' => array(2),
-    'access callback' => 'appointment_booking_access_by_slot',
-    'access arguments' => array(2),
-    'file' => 'includes/appointment_booking.forms.inc',
-  );
   $items['appointments/bookings/%appointment_booking'] = array(
     'title callback' => 'entity_label',
     'title arguments' => array('appointment_booking', 2),
@@ -104,23 +95,12 @@ function appointment_booking_menu() {
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
     'weight' => 1,
   );
-  $items['appointments/bookings/%appointment_booking/delete'] = array(
-    'title' => 'Delete',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('appointment_booking_delete_confirm', 2),
-    'access callback' => 'appointment_booking_access',
-    'access arguments' => array('delete', 2),
-    'file' => 'includes/appointment_booking.forms.inc',
-    'type' => MENU_LOCAL_TASK,
-    'context' => MENU_CONTEXT_INLINE,
-    'weight' => 2,
-  );
   $items['appointments/bookings/%appointment_booking/cancel'] = array(
     'title' => 'Cancel',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('appointment_booking_cancel_confirm', 2),
     'access callback' => 'appointment_booking_access',
-    'access arguments' => array('cancel', 2),
+    'access arguments' => array('delete', 2),
     'file' => 'includes/appointment_booking.forms.inc',
     'type' => MENU_CALLBACK,
     'weight' => 3,
@@ -141,7 +121,6 @@ function appointment_booking_menu() {
 function appointment_booking_admin_paths() {
   return array(
     'appointments/bookings/*/edit' => TRUE,
-    'appointments/bookings/*/delete' => TRUE,
   );
 }
 
@@ -192,14 +171,16 @@ function appointment_booking_access($op, AppointmentBookingEntity $booking, $acc
       }
       return FALSE;
 
-    case 'cancel':
-      if ($own && user_access('appointment booking: cancel own', $account)) {
+    case 'delete':
+      if ($own && user_access('appointment booking: delete own', $account)) {
+        return TRUE;
+      }
+      elseif (user_access('appointment booking: update any', $account)) {
         return TRUE;
       }
       return FALSE;
 
     case 'update':
-    case 'delete':
       if ($own && user_access('appointment booking: update own', $account)) {
         return TRUE;
       }
@@ -340,8 +321,8 @@ function appointment_booking_permission() {
     'appointment booking: update own' => array(
       'title' => t('Update own appointment bookings'),
     ),
-    'appointment booking: cancel own' => array(
-      'title' => t('Cancel own appointment bookings'),
+    'appointment booking: delete own' => array(
+      'title' => t('Cancel (delete) own appointment bookings'),
     ),
     'appointment booking: create' => array(
       'title' => t('Make appointment bookings'),
@@ -403,6 +384,10 @@ function appointment_booking_appointment_slot_view_alter(&$build) {
  * Implements hook_form_FORM_ID_alter().
  */
 function appointment_booking_form_appointment_slot_form_alter(&$form, &$form_state) {
+  $role_options = user_roles(FALSE, 'appointment booking: create');
+  if (!$role_options) {
+    return;
+  }
   $slot = $form_state['slot'];
   $booking_roles = $slot->data && isset($slot->data['booking_roles']) ? $slot->data['booking_roles'] : array();
   $form['booking'] = array(
@@ -414,9 +399,9 @@ function appointment_booking_form_appointment_slot_form_alter(&$form, &$form_sta
   $form['booking']['booking_roles'] = array(
     '#title' => t('Roles'),
     '#type' => 'checkboxes',
-    '#options' => user_roles(),
+    '#options' => $role_options,
     '#description' => t('Select the roles allowed to book appointments for this slot.'),
-    '#default_value' => $booking_roles ? $booking_roles : user_roles(FALSE, 'appointment booking: create'),
+    '#default_value' => $booking_roles ? $booking_roles : $role_options,
   );
   if (!isset($form['#submit'])) {
     $form['#submit'] = array();

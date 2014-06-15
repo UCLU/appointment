@@ -7,3 +7,5 @@ dependencies[] = webform
 
 files[] = includes/appointment_booking_entity.inc
 files[] = includes/appointment_booking.controller.inc
+
+stylesheets[all][] = css/appointment_booking.css
