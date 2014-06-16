@@ -14,57 +14,70 @@ function appointment_booking_schema() {
     'description' => 'Table storing appointment bookings.',
     'fields' => array(
       'booking_id' => array(
-        'description' => 'Primary key: identifier for a booking.',
+        'description' => 'Primary key: identifier for a booking',
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
       'slot_id' => array(
-        'description' => 'The {appointment_slot}.slot_id of the booked slot.',
+        'description' => 'The {appointment_slot}.slot_id of the booked slot',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
       'booking_status' => array(
-        'description' => 'The status of the booking (e.g. draft).',
+        'description' => 'The status of the booking (e.g. draft)',
         'type' => 'varchar',
         'length' => 100,
         'not null' => TRUE,
       ),
       'type' => array(
-        'description' => 'The type of the booking (machine name).',
+        'description' => 'The type of the booking (machine name)',
         'type' => 'varchar',
         'length' => 100,
         'not null' => TRUE,
         'default' => 'default',
       ),
       'uid' => array(
-        'description' => 'The {users}.uid of the appointment\'s owner/creator.',
+        'description' => 'The {users}.uid of the appointment\'s guest',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => FALSE,
       ),
+      'name' => array(
+        'description' => 'The name of the appointment\'s guest',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'mail' => array(
+        'description' => 'The e-mail address of the appointment\'s guest',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
       'anonymous_id' => array(
-        'description' => 'A unique identifier for the user (if anonymous).',
+        'description' => 'A unique identifier for the user (if anonymous)',
         'type' => 'varchar',
         'length' => 43,
         'not null' => FALSE,
       ),
       'created' => array(
-        'description' => 'The Unix timestamp for when the booking was created.',
+        'description' => 'The Unix timestamp for when the booking was created',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
       ),
       'changed' => array(
-        'description' => 'The Unix timestamp for when the booking was most recently changed.',
+        'description' => 'The Unix timestamp for when the booking was most recently changed',
         'type' => 'int',
         'not null' => FALSE,
       ),
     ),
     'primary key' => array('booking_id'),
     'unique keys' => array(
-      'slot_user' => array('slot_id', 'uid'),
+      'slot_user' => array('slot_id', 'uid', 'anonymous_id'),
+      'slot_mail' => array('slot_id', 'mail'),
     ),
     'indexes' => array(
       'type' => array('type'),
@@ -77,3 +90,4 @@ function appointment_booking_schema() {
 
   return $schema;
 }
+

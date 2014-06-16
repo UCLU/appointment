@@ -21,6 +21,39 @@ function appointment_booking_form($form, &$form_state, AppointmentBookingEntity 
 
   form_load_include($form_state, 'inc', 'appointment_booking', 'includes/appointment_booking.forms');
 
+  global $user;
+
+  $form['name'] = array(
+    '#title' => t('Name'),
+    '#type' => 'textfield',
+    '#max_length' => 255,
+    '#size' => 60,
+    '#required' => TRUE,
+  );
+
+  if ($booking->name) {
+    $form['name']['#default_value'] = $booking->name;
+  }
+  elseif ($user->uid) {
+    $form['name']['#default_value'] = format_username($user);
+  }
+
+  $form['mail'] = array(
+    '#title' => t('E-mail address'),
+    '#type' => module_exists('elements') ? 'email' : 'textfield',
+    '#max_length' => 255,
+    '#size' => 60,
+    '#required' => TRUE,
+    '#element_validate' => array('appointment_booking_validate_mail'),
+  );
+
+  if ($booking->mail) {
+    $form['mail']['#default_value'] = $booking->mail;
+  }
+  elseif ($user->uid) {
+    $form['mail']['#default_value'] = $user->mail;
+  }
+
   $form['booking_status'] = array(
     '#type' => 'value',
     '#value' => 'booked',
@@ -56,6 +89,16 @@ function appointment_booking_form($form, &$form_state, AppointmentBookingEntity 
   }
 
   return $form;
+}
+
+/**
+ * Validate an e-mail address.
+ */
+function appointment_booking_validate_mail($element, &$form_state) {
+  $value = $element['#value'];
+  if ($value !== '' && !valid_email_address($value)) {
+    form_error($element, t('%name must be a valid email address.', array('%name' => $element['#title'])));
+  }
 }
 
 /**

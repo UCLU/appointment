@@ -11,49 +11,49 @@ function appointment_slot_schema() {
   $schema = array();
 
   $schema['appointment_slot'] = array(
-    'description' => 'Table storing Appointment Slot entities.',
+    'description' => 'Table storing Appointment Slot entities',
     'fields' => array(
       'slot_id' => array(
-        'description' => 'Primary key: identifier for an appointment slot.',
+        'description' => 'Primary key: identifier for an appointment slot',
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
       'type' => array(
-        'description' => 'The type of the slot (machine name).',
+        'description' => 'The type of the slot (machine name)',
         'type' => 'varchar',
         'length' => 100,
         'not null' => TRUE,
         'default' => 'default',
       ),
       'uid' => array(
-        'description' => 'The {users}.uid of the slot\'s owner/creator.',
+        'description' => 'The {users}.uid of the slot\'s owner/creator',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => FALSE,
       ),
       'published' => array(
-        'description' => 'Allows view access to all those with the "view published appointment slots" permission.',
+        'description' => 'Allows view access to all those with the "view published appointment slots" permission',
         'type' => 'int',
         'size' => 'tiny',
         'not null' => TRUE,
         'default' => 0,
       ),
       'data' => array(
-        'description' => 'A serialized array of any further data for this slot.',
+        'description' => 'A serialized array of any further data for this slot',
         'type' => 'blob',
         'size' => 'normal',
         'serialize' => TRUE,
         'not null' => FALSE,
       ),
       'created' => array(
-        'description' => 'The Unix timestamp for when the election was created.',
+        'description' => 'The Unix timestamp for when the election was created',
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
       ),
       'changed' => array(
-        'description' => 'The Unix timestamp for when the election was most recently changed.',
+        'description' => 'The Unix timestamp for when the election was most recently changed',
         'type' => 'int',
         'not null' => FALSE,
       ),

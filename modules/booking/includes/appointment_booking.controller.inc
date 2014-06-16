@@ -31,6 +31,8 @@ class AppointmentBookingController extends EntityApiController {
       'slot_id' => NULL,
       'type' => 'default',
       'uid' => NULL,
+      'name' => NULL,
+      'mail' => NULL,
       'booking_status' => 'draft',
       'anonymous_id' => NULL,
       'created' => NULL,

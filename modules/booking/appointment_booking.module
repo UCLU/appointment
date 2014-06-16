@@ -84,7 +84,7 @@ function appointment_booking_menu() {
     'title' => 'Book this slot',
     'page callback' => 'appointment_booking_create_page',
     'page arguments' => array(2),
-    'access callback' => 'appointment_booking_access_by_slot',
+    'access callback' => 'appointment_booking_create_access',
     'access arguments' => array(2),
   );
   $items['appointments/bookings/%appointment_booking'] = array(
@@ -165,14 +165,14 @@ function appointment_booking_create_page(AppointmentSlotEntity $slot) {
 }
 
 /**
- * Access callback for booking an appointment based on a particular slot.
+ * Access callback for creating an appointment for a particular slot.
  *
  * @param AppointmentSlotEntity $slot
  * @param object $account
  *
  * @return bool
  */
-function appointment_booking_access_by_slot(AppointmentSlotEntity $slot, $account = NULL) {
+function appointment_booking_create_access(AppointmentSlotEntity $slot, $account = NULL) {
   $account = $account ? $account : $GLOBALS['user'];
   if ($slot->getEndTime() <= REQUEST_TIME) {
     return FALSE;
@@ -461,7 +461,7 @@ function appointment_booking_appointment_slot_view_alter(&$build) {
 
   $booking = appointment_booking_load_by_user($slot);
   if (!$booking) {
-    if (appointment_booking_access_by_slot($slot)) {
+    if (appointment_booking_create_access($slot)) {
       $book_link['title'] = t('Book this slot');
       $book_link['href'] = 'appointments/slots/' . $slot->slot_id . '/book';
       $book_link['query'] = $destination;
