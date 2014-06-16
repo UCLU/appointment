@@ -32,4 +32,14 @@ class AppointmentSlotEntity extends Entity {
     return strtotime($this->field_appointment_time[LANGUAGE_NONE][0]['value2']);
   }
 
+  /**
+   * Get the capacity for this slot.
+   *
+   * @return int
+   *   The remaining capacity for the slot.
+   */
+  public function getCapacity() {
+    return $this->field_appointment_capacity[LANGUAGE_NONE][0]['value'];
+  }
+
 }

@@ -38,7 +38,7 @@ function appointment_booking_entity_info() {
 
   foreach (appointment_booking_types() as $name => $type) {
     $entities['appointment_booking']['bundles'][$name] = array(
-      'label' => $type->label,
+      'label' => $type['label'],
       'admin' => array(
         'path' => 'admin/appointments/bookings/types/' . $name,
         'real path' => 'admin/appointments/bookings/types/' . $name,
@@ -49,6 +49,16 @@ function appointment_booking_entity_info() {
   }
 
   return $entities;
+}
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function appointment_booking_entity_info_alter(&$entity_info) {
+  $entity_info['appointment_slot']['view modes']['booking'] = array(
+    'label' => t('Booking form'),
+    'custom settings' => TRUE,
+  );
 }
 
 /**
@@ -145,8 +155,13 @@ function appointment_booking_create_page(AppointmentSlotEntity $slot) {
       'booking_status' => 'draft',
     ));
   }
+  $slot = appointment_slot_view($slot, 'booking');
   module_load_include('inc', 'appointment_booking', 'includes/appointment_booking.forms');
-  return drupal_get_form('appointment_booking_form', $booking);
+  $form = drupal_get_form('appointment_booking_form', $booking);
+  return array(
+    'slot' => $slot,
+    'booking_form' => $form,
+  );
 }
 
 /**
@@ -160,6 +175,9 @@ function appointment_booking_create_page(AppointmentSlotEntity $slot) {
 function appointment_booking_access_by_slot(AppointmentSlotEntity $slot, $account = NULL) {
   $account = $account ? $account : $GLOBALS['user'];
   if ($slot->getEndTime() <= REQUEST_TIME) {
+    return FALSE;
+  }
+  if ($slot->getCapacity() < 1) {
     return FALSE;
   }
   if (user_access('appointment booking: create', $account)) {
@@ -263,7 +281,7 @@ function appointment_booking_views_api() {
  */
 function appointment_booking_field_extra_fields() {
   $extra = array();
-  foreach (appointment_booking_types() as $bundle => $type) {
+  foreach (array_keys(appointment_booking_types()) as $bundle) {
     $extra['appointment_booking'][$bundle]['form'] = array(
       'status' => array(
         'label' => t('Status'),
@@ -277,7 +295,7 @@ function appointment_booking_field_extra_fields() {
       ),
     );
   }
-  foreach (appointment_slot_types() as $bundle => $type) {
+  foreach (array_keys(appointment_slot_types()) as $bundle) {
     $extra['appointment_slot'][$bundle]['display'] = array(
       'book' => array(
         'label' => t('Booking form'),
@@ -298,15 +316,18 @@ function appointment_booking_field_extra_fields() {
  * Get a list of booking types.
  *
  * @return array
- *   An array of type objects.
+ *   An array of types, each an array containing 'label', 'description', and
+ *   'module', keyed by the type machine name (the bundle name).
  */
 function appointment_booking_types() {
-  return array(
-    'default' => (object) array(
-      'label' => t('Default'),
-      'description' => t('A default booking type.'),
-    ),
+  $types = array();
+  $types['default'] = array(
+    'label' => t('Default'),
+    'description' => t('A default booking type.'),
+    'module' => 'appointment_booking',
   );
+  $types += module_invoke_all('appointment_booking_type_info');
+  return $types;
 }
 
 /**
@@ -404,12 +425,14 @@ function appointment_booking_view(AppointmentBookingEntity $booking, $view_mode 
 function appointment_booking_appointment_slot_view_alter(&$build) {
   $slot = $build['#slot'];
   $destination = drupal_get_destination();
-  $build['book'] = array(
-    '#theme' => 'container',
-    '#markup' => l(t('Book this slot'), 'appointments/slots/' . $slot->slot_id . '/book', array('query' => $destination)),
-    '#attributes' => array('class' => 'appointment-booking-link'),
-  );
   $booking = appointment_booking_load_by_user($slot);
+  if ($booking || appointment_booking_access_by_slot($slot)) {
+    $build['book'] = array(
+      '#theme' => 'container',
+      '#markup' => l(t('Book this slot'), 'appointments/slots/' . $slot->slot_id . '/book', array('query' => $destination)),
+      '#attributes' => array('class' => 'appointment-booking-link'),
+    );
+  }
   if (!$booking) {
     return;
   }

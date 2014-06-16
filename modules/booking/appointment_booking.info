@@ -4,7 +4,6 @@ core = 7.x
 dependencies[] = appointment
 dependencies[] = appointment_slot
 dependencies[] = date_views
-dependencies[] = webform
 
 files[] = includes/appointment_booking_entity.inc
 files[] = includes/appointment_booking.controller.inc

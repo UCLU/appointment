@@ -32,8 +32,6 @@ class AppointmentBookingController extends EntityApiController {
       'type' => 'default',
       'uid' => NULL,
       'booking_status' => 'draft',
-      'webform_nid' => NULL,
-      'webform_sid' => NULL,
       'created' => NULL,
       'changed' => NULL,
     );

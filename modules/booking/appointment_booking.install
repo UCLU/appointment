@@ -44,18 +44,6 @@ function appointment_booking_schema() {
         'unsigned' => TRUE,
         'not null' => FALSE,
       ),
-      'webform_nid' => array(
-        'description' => 'The {node}.nid of the webform used for making this booking.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => FALSE,
-      ),
-      'webform_sid' => array(
-        'description' => 'The {webform_submissions}.sid of the webform submission.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => FALSE,
-      ),
       'created' => array(
         'description' => 'The Unix timestamp for when the booking was created.',
         'type' => 'int',
@@ -71,7 +59,6 @@ function appointment_booking_schema() {
     'primary key' => array('booking_id'),
     'unique keys' => array(
       'slot_user' => array('slot_id', 'uid'),
-      'submission' => array('webform_nid', 'webform_sid'),
     ),
     'indexes' => array(
       'type' => array('type'),

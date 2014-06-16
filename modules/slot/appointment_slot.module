@@ -48,7 +48,7 @@ function appointment_slot_entity_info() {
 
   foreach (appointment_slot_types() as $name => $type) {
     $entities['appointment_slot']['bundles'][$name] = array(
-      'label' => $type->label,
+      'label' => $type['label'],
       'admin' => array(
         'path' => 'admin/appointments/slots/types/' . $name,
         'real path' => 'admin/appointments/slots/types/' . $name,
@@ -66,7 +66,7 @@ function appointment_slot_entity_info() {
  */
 function appointment_slot_field_extra_fields() {
   $extra = array();
-  foreach (appointment_slot_types() as $bundle => $type) {
+  foreach (array_keys(appointment_slot_types()) as $bundle) {
     $extra['appointment_slot'][$bundle]['form'] = array(
       'published' => array(
         'label' => t('Published status'),
@@ -100,7 +100,7 @@ function appointment_slot_menu() {
     $items['admin/appointments/slots/add/' . $name] = array(
       'title callback' => 'appointment_slot_add_title',
       'title arguments' => array($type),
-      'description' => $type->description ? $type->description : '',
+      'description' => !empty($type['description']) ? $type['description'] : '',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('appointment_slot_form', $name),
       'access arguments' => array('appointment slot: add new'),
@@ -219,12 +219,12 @@ function appointment_slot_access($op, AppointmentSlotEntity $slot, $account = NU
 /**
  * Title callback for adding a new slot.
  *
- * @param object $type
+ * @param array $type
  *
  * @return string
  */
 function appointment_slot_add_title($type) {
-  return t('Add new slot (@type)', array('@type' => $type->label));
+  return t('Add new slot (@type)', array('@type' => $type['label']));
 }
 
 /**
@@ -358,13 +358,14 @@ function appointment_slot_load_multiple(array $slot_ids = array(), array $condit
  * Get a list of slot types.
  *
  * @return array
- *   An array of type objects.
+ *   An array of types.
  */
 function appointment_slot_types() {
   return array(
-    'default' => (object) array(
+    'default' => array(
       'label' => t('Default'),
       'description' => t('A default slot type.'),
+      'module' => 'appointment_slot',
     ),
   );
 }

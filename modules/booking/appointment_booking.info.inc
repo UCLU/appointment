@@ -46,18 +46,6 @@ function appointment_booking_entity_property_info() {
       'type' => 'user',
       'schema field' => 'uid',
     ),
-    'webform_nid' => array(
-      'label' => t('Webform'),
-      'description' => t('The webform used in making this booking.'),
-      'type' => 'node',
-      'schema field' => 'webform_nid',
-    ),
-    'webform_sid' => array(
-      'label' => t('Webform submission ID'),
-      'description' => t('The webform submission ID for this booking.'),
-      'type' => 'integer',
-      'schema field' => 'webform_sid',
-    ),
     'created' => array(
       'label' => t('Created date'),
       'description' => t('The date when the slot was created.'),

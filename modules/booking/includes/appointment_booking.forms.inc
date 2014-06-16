@@ -21,7 +21,11 @@ function appointment_booking_form($form, &$form_state, AppointmentBookingEntity 
 
   form_load_include($form_state, 'inc', 'appointment_booking', 'includes/appointment_booking.forms');
 
-  if (appointment_booking_access('update', $booking)) {
+  $form['booking_status'] = array(
+    '#type' => 'value',
+    '#value' => 'booked',
+  );
+  if (!$booking->is_new && user_access('appointment booking: update any')) {
     $form['booking_status'] = array(
       '#title' => t('Booking status'),
       '#type' => 'select',
@@ -101,7 +105,7 @@ function appointment_booking_cancel_confirm($form, &$form_state, AppointmentBook
   $uri = entity_uri('appointment_booking', $booking);
   return confirm_form(
     $form,
-    t('Are you sure you want to cancel the booking #@id?', array('@id' => $booking->booking_id)),
+    t('Are you sure you want to cancel this booking?'),
     $uri['path'],
     NULL,
     t('Yes'),
@@ -114,9 +118,10 @@ function appointment_booking_cancel_confirm($form, &$form_state, AppointmentBook
  */
 function appointment_booking_cancel_confirm_submit($form, &$form_state) {
   $booking = $form_state['booking'];
+  $label = entity_label('appointment_booking', $booking);
   entity_get_controller('appointment_booking')->delete(array($booking->booking_id));
-  drupal_set_message(t('The booking @id has been canceled.', array(
-    '@id' => $booking->booking_id,
+  drupal_set_message(t('The booking %label has been canceled.', array(
+    '%label' => $label,
   )));
   if (empty($_GET['destination'])) {
     $form_state['redirect'] = 'appointments';

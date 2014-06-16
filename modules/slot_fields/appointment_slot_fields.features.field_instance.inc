@@ -21,6 +21,12 @@ function appointment_slot_fields_field_default_field_instances() {
     'deleted' => 0,
     'description' => 'The (remaining) capacity for this appointment slot.',
     'display' => array(
+      'booking' => array(
+        'label' => 'inline',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 1,
+      ),
       'default' => array(
         'label' => 'inline',
         'module' => 'number',
@@ -66,6 +72,19 @@ function appointment_slot_fields_field_default_field_instances() {
     'deleted' => 0,
     'description' => '',
     'display' => array(
+      'booking' => array(
+        'label' => 'inline',
+        'module' => 'date',
+        'settings' => array(
+          'format_type' => 'long',
+          'fromto' => 'both',
+          'multiple_from' => '',
+          'multiple_number' => '',
+          'multiple_to' => '',
+        ),
+        'type' => 'date_default',
+        'weight' => 0,
+      ),
       'default' => array(
         'label' => 'inline',
         'module' => 'date',
@@ -124,9 +143,7 @@ function appointment_slot_fields_field_default_field_instances() {
   // Included for use with string extractors like potx.
   t('Capacity');
   t('Date and time');
-  t('Host');
   t('The (remaining) capacity for this appointment slot.');
-  t('The user account of the appointment\'s host (optional).');
 
   return $field_instances;
 }
