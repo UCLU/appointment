@@ -5,72 +5,6 @@
  */
 
 /**
- * Form for booking an appointment.
- *
- * This is displayed on all appointment slots. It's similar to an 'Add to cart'
- * form.
- *
- * @param array $form
- *   The Drupal form render array.
- * @param array &$form_state
- *   The Drupal form state array.
- * @param AppointmentSlotEntity $slot
- *   The appointment slot entity object.
- */
-function appointment_booking_make_form($form, &$form_state, AppointmentSlotEntity $slot) {
-  form_load_include($form_state, 'inc', 'appointment_booking', 'includes/appointment_booking.forms');
-  $form['#access'] = appointment_booking_access_by_slot($slot);
-  if (!$form['#access']) {
-    return $form;
-  }
-  $form['#attributes']['class'] = array('appointment-booking-make-form');
-  $destination = drupal_get_destination();
-  $booking = appointment_booking_load_by_user($slot);
-  if (!$booking) {
-    $form_state['slot'] = $slot;
-    $form_state['redirect'] = $destination['destination'];
-    $form['submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Book'),
-    );
-    return $form;
-  }
-  $status_options = appointment_booking_status_options();
-  $form['book']['#markup'] = t('!status booking', array(
-    '!status' => $status_options[$booking->booking_status],
-  ));
-  if ($booking->booking_status == 'booked') {
-    $form['book']['#markup'] = t('Booked');
-  }
-  if (appointment_booking_access('update', $booking)) {
-    $params = array(
-      '@edit' => url('appointments/bookings/' . $booking->booking_id . '/edit', array('query' => $destination)),
-    );
-    $form['book']['#markup'] .= ' ' . t('(<a href="@edit">edit</a>)', $params);
-  }
-  if (appointment_booking_access('delete', $booking)) {
-    $params = array(
-      '@cancel' => url('appointments/bookings/' . $booking->booking_id . '/cancel', array('query' => $destination)),
-    );
-    $form['book']['#markup'] .= ' ' . t('(<a href="@cancel">cancel</a>)', $params);
-  }
-  return $form;
-}
-
-/**
- * Submit callback for making a booking.
- */
-function appointment_booking_make_form_submit($form, &$form_state) {
-  $slot = $form_state['slot'];
-  $booking = entity_create('appointment_booking', array(
-    'slot_id' => $slot->slot_id,
-    'uid' => $GLOBALS['user']->uid,
-    'booking_status' => 'draft',
-  ));
-  entity_get_controller('appointment_booking')->save($booking);
-}
-
-/**
  * Form for editing an appointment booking.
  *
  * @param array $form
@@ -80,7 +14,7 @@ function appointment_booking_make_form_submit($form, &$form_state) {
  * @param AppointmentBookingEntity $booking
  *   The appointment booking entity object.
  */
-function appointment_booking_edit_form($form, &$form_state, AppointmentBookingEntity $booking) {
+function appointment_booking_form($form, &$form_state, AppointmentBookingEntity $booking) {
   $form_state['booking'] = $booking;
 
   $booking->is_new = empty($booking->booking_id);
@@ -123,7 +57,7 @@ function appointment_booking_edit_form($form, &$form_state, AppointmentBookingEn
 /**
  * Submit callback for editing an appointment booking.
  */
-function appointment_booking_edit_form_submit($form, &$form_state) {
+function appointment_booking_form_submit($form, &$form_state) {
   $booking = $form_state['booking'];
 
   $is_new = empty($booking->booking_id);

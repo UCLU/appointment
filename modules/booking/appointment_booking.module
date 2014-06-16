@@ -70,6 +70,13 @@ function appointment_booking_status_options() {
  */
 function appointment_booking_menu() {
   $items = array();
+  $items['appointments/slots/%appointment_slot/book'] = array(
+    'title' => 'Book this slot',
+    'page callback' => 'appointment_booking_create_page',
+    'page arguments' => array(2),
+    'access callback' => 'appointment_booking_access_by_slot',
+    'access arguments' => array(2),
+  );
   $items['appointments/bookings/%appointment_booking'] = array(
     'title callback' => 'entity_label',
     'title arguments' => array('appointment_booking', 2),
@@ -87,7 +94,7 @@ function appointment_booking_menu() {
   $items['appointments/bookings/%appointment_booking/edit'] = array(
     'title' => 'Edit',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('appointment_booking_edit_form', 2),
+    'page arguments' => array('appointment_booking_form', 2),
     'access callback' => 'appointment_booking_access',
     'access arguments' => array('update', 2),
     'file' => 'includes/appointment_booking.forms.inc',
@@ -122,6 +129,24 @@ function appointment_booking_admin_paths() {
   return array(
     'appointments/bookings/*/edit' => TRUE,
   );
+}
+
+/**
+ * Page for making an appointment booking.
+ *
+ * @param AppointmentSlotEntity $slot
+ */
+function appointment_booking_create_page(AppointmentSlotEntity $slot) {
+  $booking = appointment_booking_load_by_user($slot);
+  if (!$booking) {
+    $booking = entity_create('appointment_booking', array(
+      'slot_id' => $slot->slot_id,
+      'uid' => $GLOBALS['user']->uid,
+      'booking_status' => 'draft',
+    ));
+  }
+  module_load_include('inc', 'appointment_booking', 'includes/appointment_booking.forms');
+  return drupal_get_form('appointment_booking_form', $booking);
 }
 
 /**
@@ -378,9 +403,35 @@ function appointment_booking_view(AppointmentBookingEntity $booking, $view_mode 
  */
 function appointment_booking_appointment_slot_view_alter(&$build) {
   $slot = $build['#slot'];
-  module_load_include('inc', 'appointment_booking', 'includes/appointment_booking.forms');
-  $booking_form = drupal_get_form('appointment_booking_make_form', $slot);
-  $build['book'] = $booking_form;
+  $destination = drupal_get_destination();
+  $build['book'] = array(
+    '#theme' => 'container',
+    '#markup' => l(t('Book this slot'), 'appointments/slots/' . $slot->slot_id . '/book', array('query' => $destination)),
+    '#attributes' => array('class' => 'appointment-booking-link'),
+  );
+  $booking = appointment_booking_load_by_user($slot);
+  if (!$booking) {
+    return;
+  }
+  $status_options = appointment_booking_status_options();
+  $build['book']['#markup'] = t('!status booking', array(
+    '!status' => $status_options[$booking->booking_status],
+  ));
+  if ($booking->booking_status == 'booked') {
+    $build['book']['#markup'] = t('Booked');
+  }
+  if (appointment_booking_access('update', $booking)) {
+    $params = array(
+      '@edit' => url('appointments/bookings/' . $booking->booking_id . '/edit', array('query' => $destination)),
+    );
+    $build['book']['#markup'] .= ' ' . t('(<a href="@edit">edit</a>)', $params);
+  }
+  if (appointment_booking_access('delete', $booking)) {
+    $params = array(
+      '@cancel' => url('appointments/bookings/' . $booking->booking_id . '/cancel', array('query' => $destination)),
+    );
+    $build['book']['#markup'] .= ' ' . t('(<a href="@cancel">cancel</a>)', $params);
+  }
 }
 
 /**

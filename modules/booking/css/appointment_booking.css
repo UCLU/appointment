@@ -1,5 +1,5 @@
-.appointment-booking-make-form {
+.appointment-booking-link {
+  display: inline-block;
   float: right;
   font-size: larger;
-  min-height: 40px;
 }
