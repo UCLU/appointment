@@ -44,6 +44,12 @@ function appointment_booking_schema() {
         'unsigned' => TRUE,
         'not null' => FALSE,
       ),
+      'anonymous_id' => array(
+        'description' => 'A unique identifier for the user (if anonymous).',
+        'type' => 'varchar',
+        'length' => 43,
+        'not null' => FALSE,
+      ),
       'created' => array(
         'description' => 'The Unix timestamp for when the booking was created.',
         'type' => 'int',
@@ -63,6 +69,7 @@ function appointment_booking_schema() {
     'indexes' => array(
       'type' => array('type'),
       'booking_status' => array('booking_status'),
+      'anonymous_id' => array('anonymous_id'),
       'created' => array('created'),
       'changed' => array('changed'),
     ),

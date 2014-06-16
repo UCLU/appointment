@@ -40,6 +40,13 @@ function appointment_booking_entity_property_info() {
       'schema field' => 'type',
       'setter callback' => 'entity_property_verbatim_set',
     ),
+    'anonymous_id' => array(
+      'label' => t('Session hash'),
+      'type' => 'token',
+      'description' => t("A hash of the user's session ID."),
+      'required' => FALSE,
+      'schema field' => 'anonymous_id',
+    ),
     'uid' => array(
       'label' => t('User'),
       'description' => t('The user who created or who owns the booking.'),

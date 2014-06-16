@@ -206,7 +206,10 @@ function appointment_booking_access_by_slot(AppointmentSlotEntity $slot, $accoun
  */
 function appointment_booking_access($op, AppointmentBookingEntity $booking, $account = NULL) {
   $account = $account ? $account : $GLOBALS['user'];
-  $own = $account->uid && $booking->uid == $account->uid;
+  $own = $booking->uid == $account->uid;
+  if (!$account->uid) {
+    $own = $booking->anonymous_id == appointment_booking_get_anonymous_id();
+  }
   switch ($op) {
     case 'view':
       if ($own) {
@@ -296,12 +299,6 @@ function appointment_booking_field_extra_fields() {
     );
   }
   foreach (array_keys(appointment_slot_types()) as $bundle) {
-    $extra['appointment_slot'][$bundle]['display'] = array(
-      'book' => array(
-        'label' => t('Booking form'),
-        'weight' => -10,
-      ),
-    );
     $extra['appointment_slot'][$bundle]['form'] = array(
       'booking' => array(
         'label' => t('Booking settings'),
@@ -348,12 +345,33 @@ function appointment_booking_load_by_user(AppointmentSlotEntity $slot, $account 
   $query->entityCondition('entity_type', 'appointment_booking')
     ->propertyCondition('slot_id', $slot->slot_id)
     ->propertyCondition('uid', $account->uid);
+  if (!$account->uid) {
+    if (!user_access('appointment booking: create', drupal_anonymous_user())) {
+      return FALSE;
+    }
+    $query->propertyCondition('anonymous_id', appointment_booking_get_anonymous_id());
+  }
   $result = $query->execute();
   if (!$result || empty($result['appointment_booking'])) {
     return FALSE;
   }
   $ids = array_keys($result['appointment_booking']);
   return appointment_booking_load(reset($ids));
+}
+
+/**
+ * Get a unique identifier for the anonymous user.
+ */
+function appointment_booking_get_anonymous_id() {
+  if ($GLOBALS['user']->uid) {
+    throw new Exception('The user is not anonymous');
+  }
+  $id = '';
+  $id .= ip_address();
+  if (isset($_SERVER['HTTP_USER_AGENT'])) {
+    $id .= ':' . $_SERVER['HTTP_USER_AGENT'];
+  }
+  return drupal_hash_base64($id);
 }
 
 /**
@@ -425,35 +443,51 @@ function appointment_booking_view(AppointmentBookingEntity $booking, $view_mode 
 function appointment_booking_appointment_slot_view_alter(&$build) {
   $slot = $build['#slot'];
   $destination = drupal_get_destination();
-  $booking = appointment_booking_load_by_user($slot);
-  if ($booking || appointment_booking_access_by_slot($slot)) {
-    $build['book'] = array(
-      '#theme' => 'container',
-      '#markup' => l(t('Book this slot'), 'appointments/slots/' . $slot->slot_id . '/book', array('query' => $destination)),
-      '#attributes' => array('class' => 'appointment-booking-link'),
-    );
+
+  $build['links']['#links']['book'] = array();
+  $book_link = &$build['links']['#links']['book'];
+
+  if ($slot->getCapacity() < 1) {
+    $book_link['title'] = t('Not available');
   }
-  if (!$booking) {
+  elseif (!user_is_logged_in() && !user_access('appointment booking: create')) {
+    $book_link['title'] = t('Log in to book');
+    $book_link['href'] = 'user/login';
+    $book_link['query'] = array(
+      'destination' => 'appointments/slots/' . $slot->slot_id . '/book',
+    );
     return;
   }
+
+  $booking = appointment_booking_load_by_user($slot);
+  if (!$booking) {
+    if (appointment_booking_access_by_slot($slot)) {
+      $book_link['title'] = t('Book this slot');
+      $book_link['href'] = 'appointments/slots/' . $slot->slot_id . '/book';
+      $book_link['query'] = $destination;
+    }
+    return;
+  }
+
   $status_options = appointment_booking_status_options();
-  $build['book']['#markup'] = t('!status booking', array(
+  $book_link['title'] = t('!status booking', array(
     '!status' => $status_options[$booking->booking_status],
   ));
+  $book_link['html'] = TRUE;
   if ($booking->booking_status == 'booked') {
-    $build['book']['#markup'] = t('Booked');
+    $book_link['title'] = t('&#x2713; Booked');
   }
   if (appointment_booking_access('update', $booking)) {
     $params = array(
       '@edit' => url('appointments/bookings/' . $booking->booking_id . '/edit', array('query' => $destination)),
     );
-    $build['book']['#markup'] .= ' ' . t('(<a href="@edit">edit</a>)', $params);
+    $book_link['title'] .= ' ' . t('(<a href="@edit">edit</a>)', $params);
   }
   if (appointment_booking_access('delete', $booking)) {
     $params = array(
       '@cancel' => url('appointments/bookings/' . $booking->booking_id . '/cancel', array('query' => $destination)),
     );
-    $build['book']['#markup'] .= ' ' . t('(<a href="@cancel">cancel</a>)', $params);
+    $book_link['title'] .= ' ' . t('(<a href="@cancel">cancel</a>)', $params);
   }
 }
 

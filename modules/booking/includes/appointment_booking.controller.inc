@@ -32,6 +32,7 @@ class AppointmentBookingController extends EntityApiController {
       'type' => 'default',
       'uid' => NULL,
       'booking_status' => 'draft',
+      'anonymous_id' => NULL,
       'created' => NULL,
       'changed' => NULL,
     );
@@ -53,8 +54,8 @@ class AppointmentBookingController extends EntityApiController {
     }
     $entity->changed = REQUEST_TIME;
 
-    if (!$entity->uid) {
-      throw new Exception('Cannot save bookings for anonymous users');
+    if (!$entity->uid && $entity->is_new && $GLOBALS['user']->uid == 0) {
+      $entity->anonymous_id = appointment_booking_get_anonymous_id();
     }
 
     return parent::save($entity, $transaction);

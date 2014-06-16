@@ -67,6 +67,12 @@ function appointment_slot_entity_info() {
 function appointment_slot_field_extra_fields() {
   $extra = array();
   foreach (array_keys(appointment_slot_types()) as $bundle) {
+    $extra['appointment_slot'][$bundle]['display'] = array(
+      'links' => array(
+        'label' => t('Action links'),
+        'weight' => -100,
+      ),
+    );
     $extra['appointment_slot'][$bundle]['form'] = array(
       'published' => array(
         'label' => t('Published status'),
@@ -253,7 +259,7 @@ function appointment_slot_permission() {
     'appointment slot: update own' => array(
       'title' => t('Update own appointment slots'),
     ),
-    'appointment slot: add new' => array(
+    'appointment slot: view published' => array(
       'title' => t('View published appointment slots'),
     ),
   );
@@ -287,6 +293,18 @@ function appointment_slot_type_load($name = 'default') {
  */
 function appointment_slot_view(AppointmentSlotEntity $slot, $view_mode = 'full') {
   $build = array();
+
+  $build['links'] = array(
+    '#theme' => 'links',
+    '#attributes' => array('class' => 'appointment-slot-links'),
+  );
+
+  if ($view_mode != 'full') {
+    $build['links']['#links']['more'] = array(
+      'title' => t('More details'),
+      'href' => 'appointments/slots/' . $slot->slot_id,
+    );
+  }
 
   field_attach_prepare_view('appointment_slot', array($slot->slot_id => $slot), $view_mode);
   entity_prepare_view('appointment_slot', array($slot->slot_id => $slot));

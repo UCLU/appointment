@@ -25,11 +25,14 @@ function template_preprocess_appointment_slot(&$variables) {
     $is_page = $page_slot && $page_slot->slot_id == $slot->slot_id;
   }
 
+  $uri = entity_uri('appointment_slot', $slot);
+
   // Create some basic useful variables.
   $variables['view_mode'] = $view_mode;
   $variables['teaser'] = ($view_mode == 'teaser');
   $variables['page'] = $is_page;
   $variables['slot'] = $slot;
+  $variables['url'] = check_plain(url($uri['path']));
   $variables['label'] = entity_label('appointment_slot', $slot);
 
   // Flatten the $election object's member fields.

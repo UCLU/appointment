@@ -10,3 +10,5 @@ dependencies[] = entityreference
 
 files[] = includes/appointment_slot_entity.inc
 files[] = includes/appointment_slot.controller.inc
+
+stylesheets[all][] = css/appointment_slot.css

@@ -1,0 +1,16 @@
+.appointment-slot > h2 > a {
+  color: inherit;
+}
+.appointment-slot-links {
+  float: right;
+  font-size: larger;
+  list-style-type: none;
+}
+.appointment-slot-links li {
+  display: inline;
+  padding-right: 10px;
+  text-align: right;
+}
+.appointment-slot-links li:last-child {
+  padding-right: 0;
+}
