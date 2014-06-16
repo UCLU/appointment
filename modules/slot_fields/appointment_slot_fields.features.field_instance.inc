@@ -60,49 +60,6 @@ function appointment_slot_fields_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'appointment_slot-default-field_appointment_host'
-  $field_instances['appointment_slot-default-field_appointment_host'] = array(
-    'bundle' => 'default',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => 'The user account of the appointment\'s host (optional).',
-    'display' => array(
-      'default' => array(
-        'label' => 'inline',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => 1,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 5,
-      ),
-      'teaser' => array(
-        'label' => 'inline',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 2,
-      ),
-    ),
-    'entity_type' => 'appointment_slot',
-    'field_name' => 'field_appointment_host',
-    'label' => 'Host',
-    'required' => 0,
-    'settings' => array(
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'entityreference',
-      'settings' => array(
-        'match_operator' => 'CONTAINS',
-        'path' => '',
-        'size' => 60,
-      ),
-      'type' => 'entityreference_autocomplete',
-      'weight' => 1,
-    ),
-  );
-
   // Exported field_instance: 'appointment_slot-default-field_appointment_time'
   $field_instances['appointment_slot-default-field_appointment_time'] = array(
     'bundle' => 'default',
