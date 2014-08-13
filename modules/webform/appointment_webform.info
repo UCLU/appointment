@@ -1,5 +1,6 @@
 name = Appointment Webform
 core = 7.x
 
+dependencies[] = appointment_slot
 dependencies[] = appointment_booking
-dependencies[] = webform
+dependencies[] = webform (>=7.x-4.x)

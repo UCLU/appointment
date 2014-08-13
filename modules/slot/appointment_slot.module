@@ -381,17 +381,26 @@ function appointment_slot_load_multiple(array $slot_ids = array(), array $condit
 /**
  * Get a list of slot types.
  *
+ * @param bool $reset
+ *   Reset the static cache of this information (default: FALSE).
+ *
  * @return array
  *   An array of types.
  */
-function appointment_slot_types() {
-  return array(
+function appointment_slot_types($reset = FALSE) {
+  $types = &drupal_static(__FUNCTION__);
+  if (!$reset && $types !== NULL) {
+    return $types;
+  }
+  $types = array(
     'default' => array(
       'label' => t('Default'),
       'description' => t('A default slot type.'),
       'module' => 'appointment_slot',
     ),
   );
+  $types += module_invoke_all('appointment_slot_type_info');
+  return $types;
 }
 
 /**

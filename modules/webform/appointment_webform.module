@@ -5,14 +5,61 @@
  */
 
 /**
- * Implements hook_appointment_booking_type_info().
+ * Implements hook_appointment_slot_type_info().
  */
-function appointment_webform_appointment_booking_type_info() {
-  $types = array();
-  $types['webform'] = array(
-    'label' => t('Webform booking'),
-    'description' => t('Link appointment bookings to webforms'),
-    'module' => 'appointment_webform',
+function appointment_webform_appointment_slot_type_info() {
+  return array(
+    'uclu_custom_visa' => array(
+      'label' => t('Visa appointment'),
+      'description' => t('A visa appointment slot for UCLU Advice and Welfare.'),
+      'module' => 'uclu_custom',
+    ),
   );
-  return $types;
+}
+
+/**
+ * Implements hook_appointment_booking_create_access_alter().
+ */
+function appointment_webform_appointment_booking_create_access_alter(&$access, $slot, $account) {
+  // Deny access to users who have not filled out the specified webform.
+  if ($access && isset($slot->field_slot_webform)) {
+    $slot_wrapper = entity_metadata_wrapper('appointment_slot', $slot);
+    if (!empty($slot_wrapper->field_slot_webform)) {
+      $webform = $slot_wrapper->field_slot_webform->value();
+      $submission = appointment_webform_find_submission($webform, $account);
+      if (!$submission) {
+        $access = FALSE;
+      }
+    }
+  }
+}
+
+/**
+ * Get a webform submission for an account.
+ *
+ * @param object $webform
+ *   The webform node.
+ * @param object $account
+ *   The user account.
+ *
+ * @return object|FALSE
+ *   The webform submission, or FALSE if no submission is found.
+ */
+function appointment_webform_find_submission($webform, $account) {
+  if (!$account->uid) {
+    return FALSE;
+  }
+  $query = db_select('webform_submissions', 'ws')
+    ->fields('ws', array('sid'))
+    ->condition('nid', $webform->nid)
+    ->condition('uid', $account->uid)
+    ->condition('is_draft', 0)
+    ->range(0, 1);
+  $sid = $query->execute()->fetchField();
+  if ($sid) {
+    module_load_include('inc', 'webform', 'includes/webform.submissions');
+    $submission = webform_get_submission($webform->nid, $sid);
+    return $submission;
+  }
+  return FALSE;
 }
