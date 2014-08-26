@@ -80,6 +80,14 @@ function appointment_booking_status_options() {
  */
 function appointment_booking_menu() {
   $items = array();
+  $items['admin/structure/appointments/booking/settings'] = array(
+    'title' => 'Booking settings',
+    'description' => 'Configure appointment booking.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('appointment_booking_config_form'),
+    'access arguments' => array('appointment: administer'),
+    'file' => 'includes/appointment_booking.forms.inc',
+  );
   $items['appointments/slots/%appointment_slot/book'] = array(
     'title' => 'Book this slot',
     'page callback' => 'appointment_booking_create_page',
@@ -184,6 +192,21 @@ function appointment_booking_create_access(AppointmentSlotEntity $slot, $account
   elseif (user_access('appointment booking: create', $account)) {
     $access = empty($slot->data) || empty($slot->data['booking_roles'])
       || array_intersect(array_keys($account->roles), $slot->data['booking_roles']);
+    // Check that the user does not already have a booking for other slots of
+    // this slot type.
+    if ($access && variable_get('appointment_booking_limit_by_slot_type', TRUE)) {
+      $query = db_select('appointment_booking')
+        ->condition('appointment_booking.uid', $account->uid);
+      if (!$account->uid && !$GLOBALS['user']->uid) {
+        $query->condition('appointment_booking.anonymous_id', appointment_booking_get_anonymous_id());
+      }
+      $query->join('appointment_slot', NULL, 'appointment_slot.slot_id = appointment_booking.slot_id');
+      $query->condition('appointment_slot.type', $slot->type);
+      $count = $query->range(0, 1)->countQuery()->execute()->fetchField();
+      if ($count) {
+        $access = FALSE;
+      }
+    }
   }
   drupal_alter('appointment_booking_create_access', $access, $slot, $account);
   return $access;
@@ -205,7 +228,7 @@ function appointment_booking_create_access(AppointmentSlotEntity $slot, $account
 function appointment_booking_access($op, AppointmentBookingEntity $booking, $account = NULL) {
   $account = $account ? $account : $GLOBALS['user'];
   $own = $booking->uid == $account->uid;
-  if (!$account->uid) {
+  if (!$account->uid && !$GLOBALS['user']->uid) {
     $own = $booking->anonymous_id == appointment_booking_get_anonymous_id();
   }
   switch ($op) {
@@ -344,7 +367,10 @@ function appointment_booking_load_by_user(AppointmentSlotEntity $slot, $account 
     ->propertyCondition('slot_id', $slot->slot_id)
     ->propertyCondition('uid', $account->uid);
   if (!$account->uid) {
-    if (!user_access('appointment booking: create', drupal_anonymous_user())) {
+    if ($GLOBALS['user']->uid != $account->uid) {
+      return FALSE;
+    }
+    elseif (!user_access('appointment booking: create')) {
       return FALSE;
     }
     $query->propertyCondition('anonymous_id', appointment_booking_get_anonymous_id());

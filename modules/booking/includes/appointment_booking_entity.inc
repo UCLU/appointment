@@ -12,10 +12,7 @@ class AppointmentBookingEntity extends Entity {
    * @{inheritdoc}
    */
   protected function defaultLabel() {
-    return t("@user's booking: @slot", array(
-      '@slot' => entity_label('appointment_slot', $this->getSlot()),
-      '@user' => format_username(user_load($this->uid)),
-    ));
+    return '#' . $this->booking_id;
   }
 
   /**

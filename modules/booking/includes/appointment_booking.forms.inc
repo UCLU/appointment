@@ -40,7 +40,7 @@ function appointment_booking_form($form, &$form_state, AppointmentBookingEntity 
 
   $form['mail'] = array(
     '#title' => t('E-mail address'),
-    '#type' => module_exists('elements') ? 'email' : 'textfield',
+    '#type' => module_exists('elements') ? 'emailfield' : 'textfield',
     '#max_length' => 255,
     '#size' => 60,
     '#required' => TRUE,
@@ -145,6 +145,16 @@ function appointment_booking_cancel_confirm($form, &$form_state, AppointmentBook
     '#type' => 'value',
     '#value' => $booking->booking_id,
   );
+
+  $slot_time = $booking->slot->getStartTime();
+  if ($slot_time) {
+    $form['slot_time'] = array(
+      '#type' => 'item',
+      '#title' => t('Date and time'),
+      '#markup' => format_date($slot_time),
+    );
+  }
+
   $uri = entity_uri('appointment_booking', $booking);
   return confirm_form(
     $form,
@@ -169,4 +179,16 @@ function appointment_booking_cancel_confirm_submit($form, &$form_state) {
   if (empty($_GET['destination'])) {
     $form_state['redirect'] = 'appointments';
   }
+}
+
+/**
+ * Configuration form for the Appointment Booking module.
+ */
+function appointment_booking_config_form($form, &$form_state) {
+  $form['appointment_booking_limit_by_slot_type'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Limit users to one booking per slot type',
+    '#default_value' => variable_get('appointment_booking_limit_by_slot_type', TRUE),
+  );
+  return system_settings_form($form);
 }
