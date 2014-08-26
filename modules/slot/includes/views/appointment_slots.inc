@@ -192,7 +192,7 @@ $handler->display->display_options['fields']['nothing_2']['alter']['path'] = 'ap
 
 /* Display: Page */
 $handler = $view->new_display('page', 'Page', 'page');
-$handler->display->display_options['path'] = 'admin/appointments/slots';
+$handler->display->display_options['path'] = 'admin/structure/appointments/slots';
 $handler->display->display_options['menu']['type'] = 'normal';
 $handler->display->display_options['menu']['title'] = 'Appointment Slots';
 $handler->display->display_options['menu']['name'] = 'management';

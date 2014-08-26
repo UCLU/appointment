@@ -40,9 +40,9 @@ function appointment_booking_entity_info() {
     $entities['appointment_booking']['bundles'][$name] = array(
       'label' => $type['label'],
       'admin' => array(
-        'path' => 'admin/appointments/bookings/types/' . $name,
-        'real path' => 'admin/appointments/bookings/types/' . $name,
-        'bundle argument' => 4,
+        'path' => 'admin/structure/appointments/bookings/types/' . $name,
+        'real path' => 'admin/structure/appointments/bookings/types/' . $name,
+        'bundle argument' => 5,
         'access arguments' => array('appointment booking: administer types'),
       ),
     );
@@ -122,7 +122,7 @@ function appointment_booking_menu() {
     'type' => MENU_CALLBACK,
     'weight' => 3,
   );
-  $items['admin/appointments/bookings/types'] = array(
+  $items['admin/structure/appointments/bookings/types'] = array(
     'title' => 'Appointment booking types',
     'page callback' => 'system_admin_menu_block_page',
     'access arguments' => array('appointment booking: administer types'),

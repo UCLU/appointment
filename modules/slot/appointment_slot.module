@@ -50,9 +50,9 @@ function appointment_slot_entity_info() {
     $entities['appointment_slot']['bundles'][$name] = array(
       'label' => $type['label'],
       'admin' => array(
-        'path' => 'admin/appointments/slots/types/' . $name,
-        'real path' => 'admin/appointments/slots/types/' . $name,
-        'bundle argument' => 4,
+        'path' => 'admin/structure/appointments/slots/types/' . $name,
+        'real path' => 'admin/structure/appointments/slots/types/' . $name,
+        'bundle argument' => 5,
         'access arguments' => array('appointment slot: administer types'),
       ),
     );
@@ -88,14 +88,14 @@ function appointment_slot_field_extra_fields() {
  */
 function appointment_slot_menu() {
   $items = array();
-  $items['admin/appointments/slots/add'] = array(
+  $items['admin/structure/appointments/slots/add'] = array(
     'title' => 'Add new slot',
     'page callback' => 'system_admin_menu_block_page',
     'access arguments' => array('appointment slot: add new'),
     'file' => 'system.admin.inc',
     'file path' => drupal_get_path('module', 'system'),
   );
-  $items['admin/appointments/slots/types'] = array(
+  $items['admin/structure/appointments/slots/types'] = array(
     'title' => 'Appointment slot types',
     'page callback' => 'system_admin_menu_block_page',
     'access arguments' => array('appointment slot: administer types'),
@@ -103,9 +103,9 @@ function appointment_slot_menu() {
     'file path' => drupal_get_path('module', 'system'),
   );
   foreach (appointment_slot_types() as $name => $type) {
-    $items['admin/appointments/slots/add/' . $name] = array(
+    $items['admin/structure/appointments/slots/add/' . $name] = array(
       'title callback' => 'appointment_slot_add_title',
-      'title arguments' => array($type),
+      'title arguments' => array($name),
       'description' => !empty($type['description']) ? $type['description'] : '',
       'page callback' => 'drupal_get_form',
       'page arguments' => array('appointment_slot_form', $name),
@@ -165,11 +165,11 @@ function appointment_slot_admin_paths() {
  * Implements hook_menu_local_tasks_alter().
  */
 function appointment_slot_menu_local_tasks_alter(&$data, $router_item, $root_path) {
-  if ($root_path == 'admin/appointments/slots') {
+  if ($root_path == 'admin/structure/appointments/slots' || $root_path == 'appointments') {
     foreach (appointment_slot_types() as $name => $types) {
-      $item = menu_get_item('admin/appointments/slots/add/' . $name);
+      $item = menu_get_item('admin/structure/appointments/slots/add/' . $name);
       if ($item['access']) {
-        $item['localized_options']['query']['destination'] ='admin/appointments/slots';
+        $item['localized_options']['query']['destination'] = $root_path;
         $data['actions']['output'][] = array(
           '#theme' => 'menu_local_action',
           '#link' => $item,
@@ -223,13 +223,19 @@ function appointment_slot_access($op, AppointmentSlotEntity $slot, $account = NU
 }
 
 /**
- * Title callback for adding a new slot.
+ * Menu title callback for adding a new slot.
  *
- * @param array $type
+ * @param string $name
+ *   The machine name for the slot type.
  *
  * @return string
+ *   A menu or page title.
  */
-function appointment_slot_add_title($type) {
+function appointment_slot_add_title($name) {
+  if ($name == 'default') {
+    return t('Add new slot');
+  }
+  $type = appointment_slot_type_load($name);
   return t('Add new slot (@type)', array('@type' => $type['label']));
 }
 

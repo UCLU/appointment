@@ -122,7 +122,7 @@ $handler->display->display_options['fields']['changed']['second_date_format'] = 
 
 /* Display: Page */
 $handler = $view->new_display('page', 'Page', 'page');
-$handler->display->display_options['path'] = 'admin/appointments/bookings';
+$handler->display->display_options['path'] = 'admin/structure/appointments/bookings';
 $handler->display->display_options['menu']['type'] = 'normal';
 $handler->display->display_options['menu']['title'] = 'Bookings';
 $handler->display->display_options['menu']['name'] = 'management';

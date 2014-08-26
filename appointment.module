@@ -9,8 +9,9 @@
  */
 function appointment_menu() {
   $items = array();
-  $items['admin/appointments'] = array(
+  $items['admin/structure/appointments'] = array(
     'title' => 'Appointments',
+    'description' => 'Administer appointment slots and bookings.',
     'page callback' => 'system_admin_menu_block_page',
     'access arguments' => array('appointment: administer'),
     'file' => 'system.admin.inc',
