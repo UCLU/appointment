@@ -3,8 +3,8 @@ core = 7.x
 
 dependencies[] = appointment
 dependencies[] = appointment_slot
-dependencies[] = appointment_booking_rules
 dependencies[] = date_views
+dependencies[] = rules
 
 files[] = includes/appointment_booking_entity.inc
 files[] = includes/appointment_booking.controller.inc

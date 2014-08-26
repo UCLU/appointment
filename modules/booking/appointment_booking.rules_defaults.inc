@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * appointment_booking_rules.rules_defaults.inc
+ * Default Rules for the Appointment Booking module.
  */
 
 /**
  * Implements hook_default_rules_configuration().
  */
-function appointment_booking_rules_default_rules_configuration() {
+function appointment_booking_default_rules_configuration() {
   $items = array();
   $items['rules_appointment_booking_reduce_capacity'] = entity_import('rules_config', '{ "rules_appointment_booking_reduce_capacity" : {
       "LABEL" : "Reduce capacity after booking",

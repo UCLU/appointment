@@ -174,21 +174,19 @@ function appointment_booking_create_page(AppointmentSlotEntity $slot) {
  */
 function appointment_booking_create_access(AppointmentSlotEntity $slot, $account = NULL) {
   $account = $account ? $account : $GLOBALS['user'];
+  $access = FALSE;
   if ($slot->getEndTime() <= REQUEST_TIME) {
-    return FALSE;
+    $access = FALSE;
   }
-  if ($slot->getCapacity() < 1) {
-    return FALSE;
+  elseif ($slot->getCapacity() < 1) {
+    $access = FALSE;
   }
-  if (user_access('appointment booking: create', $account)) {
-    if (empty($slot->data) || empty($slot->data['booking_roles'])) {
-      return TRUE;
-    }
-    if (array_intersect(array_keys($account->roles), $slot->data['booking_roles'])) {
-      return TRUE;
-    }
+  elseif (user_access('appointment booking: create', $account)) {
+    $access = empty($slot->data) || empty($slot->data['booking_roles'])
+      || array_intersect(array_keys($account->roles), $slot->data['booking_roles']);
   }
-  return FALSE;
+  drupal_alter('appointment_booking_create_access', $access, $slot, $account);
+  return $access;
 }
 
 /**

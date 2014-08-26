@@ -1,9 +1,0 @@
-name = appointment_booking_rules
-core = 7.x
-package = Features
-dependencies[] = appointment_booking
-dependencies[] = entity
-dependencies[] = rules
-features[features_api][] = api:2
-features[rules_config][] = rules_appointment_booking_reduce_capacity
-features[rules_config][] = rules_appointment_booking_restore_capacity
