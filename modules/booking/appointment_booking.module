@@ -177,10 +177,11 @@ function appointment_booking_create_page(AppointmentSlotEntity $slot) {
  *
  * @param AppointmentSlotEntity $slot
  * @param object $account
+ * @param bool $allow_alter
  *
  * @return bool
  */
-function appointment_booking_create_access(AppointmentSlotEntity $slot, $account = NULL) {
+function appointment_booking_create_access(AppointmentSlotEntity $slot, $account = NULL, $allow_alter = TRUE) {
   $account = $account ? $account : $GLOBALS['user'];
   $access = FALSE;
   if ($slot->getEndTime() <= REQUEST_TIME) {
@@ -208,7 +209,9 @@ function appointment_booking_create_access(AppointmentSlotEntity $slot, $account
       }
     }
   }
-  drupal_alter('appointment_booking_create_access', $access, $slot, $account);
+  if ($allow_alter) {
+    drupal_alter('appointment_booking_create_access', $access, $slot, $account);
+  }
   return $access;
 }
 
