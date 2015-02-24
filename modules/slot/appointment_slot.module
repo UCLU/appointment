@@ -385,13 +385,14 @@ function appointment_slot_load_multiple(array $slot_ids = array(), array $condit
  *   An array of types.
  */
 function appointment_slot_types() {
-  return array(
+  $types = array(
     'default' => array(
       'label' => t('Default'),
       'description' => t('A default slot type.'),
       'module' => 'appointment_slot',
     ),
   );
+  return drupal_alter(__FUNCTION__, $types);
 }
 
 /**
